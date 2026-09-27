@@ -752,7 +752,7 @@ export const ComparativeTab: React.FC<ComparativeTabProps> = ({
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Peso: {c.anthropometry.weight}kg • Cintura: {c.anthropometry.circumferences.waist}cm • VET: {c.prescription.activityFactorPreset}
+                    Peso: {c.anthropometry.weight}kg • Cintura: {c.anthropometry.circumferences.waist}cm • VET: {c.calculated?.vet ? `${Math.round(c.calculated.vet)} kcal` : '—'}
                   </p>
                 </div>
 

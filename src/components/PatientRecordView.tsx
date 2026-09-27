@@ -223,7 +223,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
             <div className="text-center px-2">
               <span className="text-[10px] uppercase font-bold text-slate-400 block">VET Meta</span>
               <span className="font-black text-slate-900 text-sm">
-                {calculatedMetrics.vet > 0 ? `${calculatedMetrics.vet} kcal` : '--'}
+                {calculatedMetrics.vet > 0 ? `${Math.round(calculatedMetrics.vet)} kcal` : '--'}
               </span>
             </div>
           </div>
