@@ -222,17 +222,13 @@ export const PatientsDirectoryView: React.FC<PatientsDirectoryViewProps> = ({
               <Users className="w-6 h-6" />
             </div>
             <h3 className="text-sm font-bold text-slate-800 mb-1">
-              Nenhum paciente localizado
+              {patients.length === 0 ? 'Nenhum paciente cadastrado' : 'Nenhum paciente localizado'}
             </h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto mb-4">
-              Não encontramos nenhum paciente correspondente à sua busca ou filtro atual.
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              {patients.length === 0
+                ? 'Use o botão "Cadastrar Novo Paciente" acima para começar.'
+                : 'Não encontramos nenhum paciente correspondente à sua busca ou filtro atual.'}
             </p>
-            <button
-              onClick={onOpenNewPatientModal}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-colors"
-            >
-              Cadastrar Novo Paciente
-            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

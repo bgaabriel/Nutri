@@ -646,16 +646,6 @@ export default function App() {
 
           {/* Header Action Buttons */}
           <div className="flex items-center gap-2.5">
-            {activeMainTab === 'pacientes' && (
-              <button
-                onClick={() => setIsPatientsModalOpen(true)}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Novo Paciente</span>
-              </button>
-            )}
-
             {activeMainTab === 'prontuario' && (
               <>
                 <button
@@ -718,24 +708,6 @@ export default function App() {
               </>
             )}
 
-            {(activeMainTab === 'panorama' || activeMainTab === 'agenda') && (
-              <>
-                <button
-                  onClick={() => setIsPatientsModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Novo Paciente</span>
-                </button>
-                <button
-                  onClick={() => handleOpenNewAppointment()}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Agendar Consulta</span>
-                </button>
-              </>
-            )}
           </div>
         </header>
 
@@ -748,7 +720,6 @@ export default function App() {
               consultations={consultations}
               appointments={appointments}
               profile={profile}
-              onOpenNewPatient={() => setIsPatientsModalOpen(true)}
               onOpenNewAppointment={handleOpenNewAppointment}
               onEditAppointment={handleEditAppointment}
               onSelectPatientAndOpenTab={(pId, tab) => {

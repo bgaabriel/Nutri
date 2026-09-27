@@ -29,7 +29,6 @@ interface OverviewDashboardProps {
   consultations: Consultation[];
   appointments: Appointment[];
   profile: ProfessionalProfile;
-  onOpenNewPatient: () => void;
   onOpenNewAppointment: (date?: string, patientId?: string) => void;
   onEditAppointment: (appointment: Appointment) => void;
   onSelectPatientAndOpenTab: (patientId: string, tab: ClinicalStage) => void;
@@ -37,14 +36,13 @@ interface OverviewDashboardProps {
   onUpdateAppointmentStatus: (id: string, status: AppointmentStatus) => void;
 }
 
-export type CalendarPeriodFilter = 'hoje' | 'semana' | 'mes';
+export type CalendarPeriodFilter = 'dia' | 'semana' | 'mes';
 
 export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   patients,
   consultations,
   appointments,
   profile,
-  onOpenNewPatient,
   onOpenNewAppointment,
   onEditAppointment,
   onSelectPatientAndOpenTab,
@@ -53,8 +51,8 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
 }) => {
   const todayIso = new Date().toISOString().split('T')[0];
 
-  // Period filter: 'hoje' | 'semana' | 'mes'
-  const [periodFilter, setPeriodFilter] = useState<CalendarPeriodFilter>('hoje');
+  // Period filter: 'dia' | 'semana' | 'mes'
+  const [periodFilter, setPeriodFilter] = useState<CalendarPeriodFilter>('dia');
 
   // Selected date cursor (YYYY-MM-DD)
   const [selectedDateStr, setSelectedDateStr] = useState<string>(() => todayIso);
@@ -91,7 +89,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
-  // Day navigation for 'Hoje' filter
+  // Day navigation for 'Dia' filter
   const prevDay = () => {
     const parts = selectedDateStr.split('-');
     const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
@@ -478,26 +476,26 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
               </h2>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Filtre por Hoje, Semana ou Mês para planejar consultas e acessar prontuários
+              Filtre por Dia, Semana ou Mês para planejar consultas e acessar prontuários
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Botões de Filtro: Hoje | Semana | Mês */}
+            {/* Botões de Filtro: Dia | Semana | Mês */}
             <div className="flex bg-slate-200/70 p-1 rounded-xl border border-slate-300/60 shadow-2xs">
               <button
                 onClick={() => {
-                  setPeriodFilter('hoje');
+                  setPeriodFilter('dia');
                   setSelectedDateStr(todayIso);
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-bold transition-all cursor-pointer ${
-                  periodFilter === 'hoje'
+                  periodFilter === 'dia'
                     ? 'bg-emerald-700 text-white shadow-xs'
                     : 'text-slate-700 hover:text-slate-900 hover:bg-white/60'
                 }`}
               >
                 <Clock className="w-3.5 h-3.5" />
-                <span>Hoje</span>
+                <span>Dia</span>
               </button>
 
               <button
@@ -532,7 +530,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
             </div>
 
             {/* Date Navigation depending on periodFilter */}
-            {periodFilter === 'hoje' && (
+            {periodFilter === 'dia' && (
               <div className="flex items-center bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
                 <button
                   onClick={prevDay}
@@ -635,9 +633,9 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
         </div>
 
         {/* ============================================================ */}
-        {/* VIEW 1: FILTRO POR 'HOJE'                                      */}
+        {/* VIEW 1: FILTRO POR 'DIA'                                       */}
         {/* ============================================================ */}
-        {periodFilter === 'hoje' && (
+        {periodFilter === 'dia' && (
           <div className="p-6 space-y-5">
             {/* Header info for selected day */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
@@ -660,15 +658,6 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onOpenNewAppointment(selectedDateStr)}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Agendar para este dia</span>
-                </button>
-              </div>
             </div>
 
             {/* List of appointments for selected day */}
@@ -677,14 +666,8 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                 <CalendarIcon className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                 <h4 className="text-base font-bold text-slate-700">Nenhum atendimento agendado para este dia</h4>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  Aproveite para prescrever dietas, checar relatórios clínicos ou agendar novas consultas.
+                  Use o botão "Agendar" acima para marcar um atendimento nesta data.
                 </p>
-                <button
-                  onClick={() => onOpenNewAppointment(selectedDateStr)}
-                  className="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer"
-                >
-                  + Agendar Consulta Agora
-                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -812,13 +795,6 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                 <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold">
                   {weekAppointments.length} consultas nesta semana
                 </span>
-                <button
-                  onClick={() => onOpenNewAppointment(todayIso)}
-                  className="flex items-center gap-1 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-xl transition-all shadow-xs cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Nova Consulta</span>
-                </button>
               </div>
             </div>
 
@@ -876,13 +852,6 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                         {filteredDayApts.length === 0 ? (
                           <div className="text-center py-6 px-1 border border-dashed border-slate-100 rounded-xl bg-slate-50/50">
                             <span className="text-[11px] text-slate-400 block">Sem consultas</span>
-                            <button
-                              onClick={() => onOpenNewAppointment(dayItem.dateStr)}
-                              className="text-[10px] text-emerald-700 hover:text-emerald-900 font-bold mt-1 inline-flex items-center gap-0.5 cursor-pointer"
-                            >
-                              <Plus className="w-2.5 h-2.5" />
-                              <span>Agendar</span>
-                            </button>
                           </div>
                         ) : (
                           filteredDayApts.map((apt) => (
@@ -1044,13 +1013,6 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                     {formattedSelectedDate}
                   </h3>
                 </div>
-                <button
-                  onClick={() => onOpenNewAppointment(selectedDateStr)}
-                  className="flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1.5 rounded-xl transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Agendar neste dia</span>
-                </button>
               </div>
 
               {/* List of appointments for selected date */}
@@ -1060,14 +1022,8 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
                     <CalendarIcon className="w-8 h-8 text-slate-300 mx-auto mb-2" />
                     <p className="text-sm font-bold text-slate-700">Nenhum atendimento para esta data</p>
                     <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                      Não há horários marcados. Clique no botão abaixo para agendar um atendimento neste dia.
+                      Não há horários marcados. Use o botão "Agendar" acima para marcar um atendimento nesta data.
                     </p>
-                    <button
-                      onClick={() => onOpenNewAppointment(selectedDateStr)}
-                      className="mt-3 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all shadow-2xs cursor-pointer"
-                    >
-                      + Marcar Consulta Aqui
-                    </button>
                   </div>
                 ) : (
                   selectedDateAppointments.map((apt) => (
