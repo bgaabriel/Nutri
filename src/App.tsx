@@ -138,6 +138,7 @@ export default function App() {
       },
       anthropometry: {
         weight: 85.0,
+        usualWeight: 82.0,
         height: 175,
         circumferences: {
           neck: 40.0,
@@ -217,6 +218,7 @@ export default function App() {
         },
         anthropometry: {
           weight: 70.0,
+          usualWeight: 0,
           height: 170,
           circumferences: {
             neck: 38,

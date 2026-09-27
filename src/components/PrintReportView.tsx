@@ -1,5 +1,6 @@
 import React from 'react';
 import { CalculatedMetrics, Consultation, Patient, ProfessionalProfile } from '../types';
+import { formatarVariacaoPercentual, variacaoPesoHabitual } from '../calculations';
 import { ArrowLeft } from 'lucide-react';
 
 interface PrintReportViewProps {
@@ -18,6 +19,10 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
   onBackToApp,
 }) => {
   const calc = calculatedMetrics;
+  const variacaoHabitual = variacaoPesoHabitual(
+    consultation.anthropometry.weight,
+    consultation.anthropometry.usualWeight
+  );
 
   return (
     <div className="max-w-4xl mx-auto py-6 px-4">
@@ -167,6 +172,25 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
               </span>
             </div>
           </div>
+
+          {consultation.anthropometry.usualWeight ? (
+            <div className="grid grid-cols-2 gap-3 mb-4 text-center">
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Peso Habitual</span>
+                <span className="text-base font-extrabold text-slate-900">
+                  {consultation.anthropometry.usualWeight.toFixed(1)} kg
+                </span>
+              </div>
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                  Variação em relação ao habitual
+                </span>
+                <span className="text-base font-extrabold text-slate-900">
+                  {variacaoHabitual !== null ? formatarVariacaoPercentual(variacaoHabitual) : '--'}
+                </span>
+              </div>
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-3 gap-3 mb-4 text-center">
             <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">

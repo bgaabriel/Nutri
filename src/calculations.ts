@@ -216,3 +216,19 @@ export function calculateAllMetrics(
     skinfoldsSum4,
   };
 }
+
+/**
+ * Variação do peso atual em relação ao peso habitual, em %.
+ * Retorna null quando algum dos pesos não foi informado (<= 0).
+ */
+export function variacaoPesoHabitual(pesoAtual: number, pesoHabitual?: number): number | null {
+  if (!(pesoAtual > 0) || !pesoHabitual || !(pesoHabitual > 0)) return null;
+  return ((pesoAtual - pesoHabitual) / pesoHabitual) * 100;
+}
+
+/** Formata a variação com sinal e 1 casa, no padrão brasileiro: "−5,9%", "+2,0%". */
+export function formatarVariacaoPercentual(valor: number): string {
+  const arredondado = Math.round(valor * 10) / 10;
+  const sinal = arredondado > 0 ? '+' : arredondado < 0 ? '−' : '';
+  return `${sinal}${Math.abs(arredondado).toFixed(1).replace('.', ',')}%`;
+}

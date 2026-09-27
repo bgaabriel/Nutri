@@ -56,6 +56,7 @@ export interface Skinfolds {
 
 export interface Anthropometry {
   weight: number; // kg
+  usualWeight?: number; // peso habitual, kg
   height: number; // cm
   circumferences: Circumferences;
   skinfolds: Skinfolds;

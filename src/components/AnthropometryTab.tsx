@@ -1,5 +1,6 @@
 import React from 'react';
 import { Anthropometry, CalculatedMetrics, FatProtocol } from '../types';
+import { formatarVariacaoPercentual, variacaoPesoHabitual } from '../calculations';
 import { Scale, HeartCrack, Layers } from 'lucide-react';
 
 interface AnthropometryTabProps {
@@ -14,6 +15,7 @@ export const AnthropometryTab: React.FC<AnthropometryTabProps> = ({
   onUpdateAnthropometry,
 }) => {
   const { weight, height, circumferences, skinfolds, fatProtocol } = anthropometry;
+  const variacaoHabitual = variacaoPesoHabitual(weight, anthropometry.usualWeight);
 
   const updateCirc = (field: keyof typeof circumferences, val: number) => {
     onUpdateAnthropometry({
@@ -100,6 +102,39 @@ export const AnthropometryTab: React.FC<AnthropometryTabProps> = ({
               <p className="text-xs text-slate-500 font-medium">Faixa Eutrófica (OMS)</p>
               <p className="text-xs font-bold text-emerald-700 mt-0.5">18.5 - 24.9 kg/m²</p>
             </div>
+          </div>
+
+          {/* Peso habitual, logo abaixo do IMC */}
+          <div>
+            <label htmlFor="peso-habitual" className="block text-xs font-semibold text-slate-700 mb-1">
+              Peso Habitual (kg)
+            </label>
+            <input
+              id="peso-habitual"
+              type="number"
+              step="0.1"
+              value={anthropometry.usualWeight || ''}
+              onChange={(e) => onUpdateAnthropometry({ usualWeight: parseFloat(e.target.value) || 0 })}
+              className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-bold text-base focus:border-emerald-600 outline-none transition-all"
+            />
+          </div>
+          <div className="sm:col-span-1 md:col-span-3 flex items-end pb-2">
+            {variacaoHabitual !== null ? (
+              <p className="text-sm text-slate-700">
+                <strong
+                  className={`font-mono text-base ${
+                    variacaoHabitual < 0 ? 'text-amber-700' : variacaoHabitual > 0 ? 'text-orange-700' : 'text-emerald-700'
+                  }`}
+                >
+                  {formatarVariacaoPercentual(variacaoHabitual)}
+                </strong>{' '}
+                em relação ao habitual
+              </p>
+            ) : (
+              <p className="text-xs text-slate-400">
+                Informe o peso habitual para ver a variação em relação ao peso atual.
+              </p>
+            )}
           </div>
         </div>
 

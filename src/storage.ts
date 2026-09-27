@@ -156,6 +156,7 @@ export const initialConsultations: Consultation[] = [
     },
     anthropometry: {
       weight: 92.0,
+      usualWeight: 86.0,
       height: 175,
       circumferences: {
         neck: 42,
@@ -217,6 +218,7 @@ export const initialConsultations: Consultation[] = [
     },
     anthropometry: {
       weight: 88.5,
+      usualWeight: 86.0,
       height: 175,
       circumferences: {
         neck: 41,
