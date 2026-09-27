@@ -1,4 +1,5 @@
 import { Appointment, Consultation, Patient, ProfessionalProfile } from './types';
+import { dataLocalISO } from './utils/date';
 
 const PATIENTS_STORAGE_KEY = 'nutripro_patients_v1';
 const CONSULTATIONS_STORAGE_KEY = 'nutripro_consultations_v1';
@@ -16,7 +17,7 @@ export const defaultProfile: ProfessionalProfile = {
 const getIsoDate = (offsetDays: number = 0): string => {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().split('T')[0];
+  return dataLocalISO(d);
 };
 
 export const initialAppointments: Appointment[] = [

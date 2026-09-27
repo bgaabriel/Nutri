@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Appointment, AppointmentModality, AppointmentStatus, AppointmentType, Patient } from '../types';
 import { X, Calendar, Clock, User, CheckCircle2, Trash2, Video, Building2 } from 'lucide-react';
+import { hojeLocalISO } from '../utils/date';
 
 interface AppointmentModalProps {
   isOpen: boolean;
@@ -52,7 +53,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
       setPrice(effectiveAppointment.price !== undefined ? String(effectiveAppointment.price) : '250');
       setPaid(!!effectiveAppointment.paid);
     } else {
-      const today = effectiveDate || new Date().toISOString().split('T')[0];
+      const today = effectiveDate || hojeLocalISO();
       setDate(today);
       setTime('09:00');
       setDurationMinutes(60);

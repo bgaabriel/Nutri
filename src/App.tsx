@@ -42,6 +42,7 @@ import {
   Settings,
   CheckCircle2,
 } from 'lucide-react';
+import { hojeLocalISO } from './utils/date';
 
 export type MainTab = 'panorama' | 'agenda' | 'pacientes' | 'prontuario';
 
@@ -374,7 +375,7 @@ export default function App() {
 
   const handleOpenNewAppointment = (date?: string, patientId?: string) => {
     setSelectedAppointment(null);
-    setAppointmentDefaultDate(date || new Date().toISOString().split('T')[0]);
+    setAppointmentDefaultDate(date || hojeLocalISO());
     if (patientId) {
       setActivePatientId(patientId);
     }
@@ -401,7 +402,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `backup_nutripro_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `backup_nutripro_${hojeLocalISO()}.json`;
     link.click();
     URL.revokeObjectURL(url);
     showToast('Backup JSON exportado com sucesso!');
@@ -488,7 +489,7 @@ export default function App() {
                 <span>Panorama & Calendário</span>
               </div>
               {appointments.filter(
-                (a) => a.date === new Date().toISOString().split('T')[0]
+                (a) => a.date === hojeLocalISO()
               ).length > 0 && (
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               )}

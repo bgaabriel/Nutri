@@ -14,6 +14,7 @@ import {
   Clock,
   Utensils,
 } from 'lucide-react';
+import { hojeLocalISO } from '../utils/date';
 
 interface PatientsDirectoryViewProps {
   patients: Patient[];
@@ -70,7 +71,7 @@ export const PatientsDirectoryView: React.FC<PatientsDirectoryViewProps> = ({
   const totalPatients = patients.length;
   const totalConsultations = consultations.length;
   const totalUpcomingAppointments = appointments.filter((a) => {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = hojeLocalISO();
     return a.date >= todayStr && a.status !== 'cancelado';
   }).length;
 
@@ -234,7 +235,7 @@ export const PatientsDirectoryView: React.FC<PatientsDirectoryViewProps> = ({
               const nextAppointment = appointments.find(
                 (a) =>
                   a.patientId === patient.id &&
-                  a.date >= new Date().toISOString().split('T')[0] &&
+                  a.date >= hojeLocalISO() &&
                   a.status !== 'cancelado'
               );
 

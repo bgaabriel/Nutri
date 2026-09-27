@@ -18,6 +18,7 @@ import {
   FileEdit,
   User,
 } from 'lucide-react';
+import { hojeLocalISO, dataLocalISO } from '../utils/date';
 
 interface OverviewDashboardProps {
   appointments: Appointment[];
@@ -38,7 +39,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   onSelectPatientAndOpenTab,
   onUpdateAppointmentStatus,
 }) => {
-  const todayIso = new Date().toISOString().split('T')[0];
+  const todayIso = hojeLocalISO();
 
   // Period filter: 'dia' | 'semana' | 'mes'
   const [periodFilter, setPeriodFilter] = useState<CalendarPeriodFilter>('dia');
@@ -83,19 +84,13 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
     const parts = selectedDateStr.split('-');
     const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     d.setDate(d.getDate() - 1);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    setSelectedDateStr(`${y}-${m}-${day}`);
+    setSelectedDateStr(dataLocalISO(d));
   };
   const nextDay = () => {
     const parts = selectedDateStr.split('-');
     const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     d.setDate(d.getDate() + 1);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    setSelectedDateStr(`${y}-${m}-${day}`);
+    setSelectedDateStr(dataLocalISO(d));
   };
 
   // Week navigation for 'Semana' filter
@@ -117,7 +112,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
     const today = new Date();
     setCurrentDate(today);
     setWeekBaseDate(today);
-    setSelectedDateStr(today.toISOString().split('T')[0]);
+    setSelectedDateStr(dataLocalISO(today));
   };
 
   const currentYear = currentDate.getFullYear();
@@ -134,7 +129,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
   // Appointments upcoming in the next 7 days
   const upcomingWeekAppointments = useMemo(() => {
     const now = new Date();
-    const nextWeekIso = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const nextWeekIso = dataLocalISO(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7));
     return appointments.filter((a) => a.date >= todayIso && a.date <= nextWeekIso);
   }, [appointments, todayIso]);
 
