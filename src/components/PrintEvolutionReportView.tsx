@@ -15,6 +15,7 @@ import {
   FileText,
   Sparkles,
 } from 'lucide-react';
+import { PrintSheet } from './PrintSheet';
 
 interface PrintEvolutionReportViewProps {
   patient: Patient;
@@ -151,7 +152,7 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
   const fats = allSessions.map((s) => s.calculated?.bodyFatPercent || 0);
 
   return (
-    <div className="max-w-5xl mx-auto py-6 px-4">
+    <div className="max-w-5xl mx-auto py-6 px-4 print:max-w-none print:p-0">
       {/* Action Bar (Hidden on print) */}
       <div className="no-print flex flex-wrap items-center justify-between gap-4 bg-white border border-slate-200 p-4 rounded-2xl mb-6 shadow-xs">
         <button
@@ -183,7 +184,8 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
       </div>
 
       {/* Printable Sheet (Formatted for both screen preview, digital sharing and physical print) */}
-      <div className="card-print bg-white text-slate-900 p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-200 space-y-7">
+      <div className="print-doc bg-white text-slate-900 p-8 sm:p-10 rounded-2xl shadow-xl border border-slate-200">
+        <PrintSheet paciente={patient.name} clinica={profile.clinic} documento="Relatório de evolução" className="space-y-7">
         {/* Cabecalho Timbrado */}
         <div className="border-b-2 border-emerald-800 pb-5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
@@ -624,6 +626,7 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
             <p className="text-[10px] text-slate-500">{profile.clinic}</p>
           </div>
         </div>
+        </PrintSheet>
       </div>
     </div>
   );

@@ -6,33 +6,21 @@
   }
 }
 
-@media print {
-  body {
-    background-color: #ffffff !important;
-    color: #0f172a !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    font-size: 11pt !important;
-  }
-  .no-print {
+@media screen {
+  .print-only,
+  .print-rodape {
     display: none !important;
-  }
-  .print-only {
-    display: block !important;
-  }
-  .print-page {
-    page-break-after: auto;
-    page-break-inside: avoid;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
   }
 }
 
-@media screen {
-  .print-only {
-    display: none !important;
-  }
+/* Moldura do documento impresso (PrintSheet): na tela é transparente */
+.print-folha {
+  width: 100%;
+  border-collapse: collapse;
+}
+.print-folha > tbody > tr > td {
+  padding: 0;
+  vertical-align: top;
 }
 
 @layer base {
@@ -65,24 +53,29 @@
   background: #94a3b8;
 }
 
-/* Strict Print Stylesheet: Converts app into clean, crisp medical report on paper/PDF */
+/* Impressão: só o documento (cardápio, relatório, evolução), sem a interface do app */
 @media print {
   @page {
     size: A4;
-    margin: 15mm 15mm 15mm 15mm;
+    margin: 15mm 15mm 20mm 15mm;
   }
 
+  html,
   body {
     background: #ffffff !important;
     color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
     font-size: 11pt;
     line-height: 1.4;
   }
 
   .no-print,
   aside,
-  header,
-  .print\\:hidden {
+  header {
     display: none !important;
   }
 
@@ -90,18 +83,68 @@
     display: block !important;
   }
 
-  .card-print {
-    border: 1px solid #e2e8f0 !important;
+  /* O app usa min-h-screen e overflow-y-auto; na impressão isso cortaria o conteúdo */
+  .min-h-screen {
+    min-height: auto !important;
+  }
+  main,
+  .overflow-y-auto,
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+  main > section {
+    padding: 0 !important;
+  }
+
+  /*
+   * Folha do documento. Sem page-break-inside: avoid de propósito: a folha é maior
+   * que uma página, e o avoid a empurrava inteira para a página 2, deixando a
+   * página 1 em branco.
+   */
+  .print-doc {
+    border: none !important;
     background: #ffffff !important;
     color: #0f172a !important;
     box-shadow: none !important;
-    page-break-inside: avoid;
-    margin-bottom: 14px !important;
-    padding: 12px 16px !important;
-    border-radius: 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
   }
 
-  input, select, textarea {
+  /* Blocos pequenos (cada refeição, quadros de metas) não se partem entre páginas */
+  .page-break-inside-avoid,
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  h2,
+  h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /*
+   * Rodapé com o nome do paciente em todas as páginas (PrintSheet.tsx): o <tfoot> de
+   * uma tabela de verdade é repetido pelo navegador no pé de cada página, com espaço
+   * reservado (um position: fixed ficaria por cima do conteúdo).
+   */
+  .print-rodape {
+    display: table-footer-group !important;
+  }
+  .print-rodape td > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4mm;
+    padding-top: 2mm;
+    border-top: 1px solid #e2e8f0;
+    font-size: 8pt;
+    color: #64748b;
+  }
+
+  input,
+  select,
+  textarea {
     border: none !important;
     background: transparent !important;
     color: #0f172a !important;
@@ -115,7 +158,8 @@
     width: 100% !important;
   }
 
-  th, td {
+  th,
+  td {
     border-bottom: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
     padding: 6px 8px !important;
@@ -124,5 +168,17 @@
   th {
     background-color: #f8fafc !important;
     font-weight: 700 !important;
+  }
+
+  /* A tabela de moldura do PrintSheet não herda o estilo das tabelas do documento */
+  .print-folha > tbody > tr,
+  .print-folha > tfoot > tr {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+  .print-folha > tbody > tr > td,
+  .print-folha > tfoot > tr > td {
+    padding: 0 !important;
+    border: none !important;
   }
 }

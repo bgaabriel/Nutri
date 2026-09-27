@@ -2,6 +2,7 @@ import React from 'react';
 import { Patient, Consultation, ProfessionalProfile, MealPlan, CalculatedMetrics } from '../types';
 import { sumMealNutrients, createDefaultMealPlan, ordenarRefeicoesPorHorario } from '../data/tacoFoods';
 import { ArrowLeft, Droplet, Flame } from 'lucide-react';
+import { PrintSheet } from './PrintSheet';
 
 interface PrintMealPlanViewProps {
   patient: Patient;
@@ -31,7 +32,7 @@ export const PrintMealPlanView: React.FC<PrintMealPlanViewProps> = ({
   const waterLiters = (plan.metaAguaMl / 1000).toFixed(1);
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4">
+    <div className="max-w-4xl mx-auto py-6 px-4 print:max-w-none print:p-0">
       {/* Barra de Ações (Oculta na impressão) */}
       <div className="no-print flex items-center justify-between bg-white border border-slate-200 p-4 rounded-2xl mb-6 shadow-xs">
         <button
@@ -50,7 +51,8 @@ export const PrintMealPlanView: React.FC<PrintMealPlanViewProps> = ({
       </div>
 
       {/* Folha do Cardápio para Impressão */}
-      <div className="card-print bg-white text-slate-900 p-8 rounded-xl shadow-lg border border-slate-200">
+      <div className="print-doc bg-white text-slate-900 p-8 rounded-xl shadow-lg border border-slate-200">
+        <PrintSheet paciente={patient.name} clinica={profile.clinic} documento="Plano alimentar">
         {/* Cabeçalho Timbrado Profissional */}
         <div className="flex justify-between items-start border-b-2 border-slate-800 pb-5 mb-6">
           <div>
@@ -276,6 +278,7 @@ export const PrintMealPlanView: React.FC<PrintMealPlanViewProps> = ({
           <p className="text-sm font-bold text-slate-900">{profile.name}</p>
           <p className="text-xs text-slate-600">{profile.crn} • Nutricionista Responsável</p>
         </div>
+        </PrintSheet>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import React from 'react';
 import { CalculatedMetrics, Consultation, Patient, ProfessionalProfile } from '../types';
 import { formatarVariacaoPercentual, NOMES_FORMULA_TMB, variacaoPesoHabitual } from '../calculations';
 import { ArrowLeft } from 'lucide-react';
+import { PrintSheet } from './PrintSheet';
 
 interface PrintReportViewProps {
   patient: Patient;
@@ -28,7 +29,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
   );
 
   return (
-    <div className="max-w-4xl mx-auto py-6 px-4">
+    <div className="max-w-4xl mx-auto py-6 px-4 print:max-w-none print:p-0">
       {/* Action Bar (Hidden on print) */}
       <div className="no-print flex items-center justify-between bg-white border border-slate-200 p-4 rounded-2xl mb-6 shadow-xs">
         <button
@@ -47,7 +48,8 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
       </div>
 
       {/* Printable Sheet (Stylized for both screen preview and print) */}
-      <div className="card-print bg-white text-slate-900 p-8 rounded-xl shadow-lg border border-slate-200">
+      <div className="print-doc bg-white text-slate-900 p-8 rounded-xl shadow-lg border border-slate-200">
+        <PrintSheet paciente={patient.name} clinica={profile.clinic} documento="Relatório de avaliação nutricional">
         {/* Cabecalho Timbrado */}
         <div className="border-b-2 border-slate-900 pb-4 mb-6 flex justify-between items-start">
           <div>
@@ -364,6 +366,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
             <p className="text-[10px] text-slate-500">Assinatura & Carimbo do Profissional</p>
           </div>
         </div>
+        </PrintSheet>
       </div>
     </div>
   );

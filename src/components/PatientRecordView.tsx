@@ -93,8 +93,8 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Top Breadcrumb & Patient Card Banner */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+      {/* Top Breadcrumb & Patient Card Banner (fora da impressão) */}
+      <div className="no-print bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
         {/* Breadcrumb row */}
         <div className="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100 flex-wrap">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -231,7 +231,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
       </div>
 
       {/* Clinical Stages Segmented Tabs */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-1.5 shadow-xs overflow-x-auto">
+      <div className="no-print bg-white border border-slate-200 rounded-2xl p-1.5 shadow-xs overflow-x-auto">
         <div className="flex items-center gap-1.5 min-w-max">
           {stages.map((stage) => {
             const Icon = stage.icon;
@@ -265,7 +265,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               onUpdateAnamnesis={onUpdateAnamnesis}
             />
             {/* Step navigation prompt */}
-            <div className="flex justify-end pt-2">
+            <div className="no-print flex justify-end pt-2">
               <button
                 onClick={() => onChangeStage('antropometria')}
                 className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
@@ -285,7 +285,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               onUpdateAnthropometry={onUpdateAnthropometry}
             />
             {/* Step navigation prompts */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="no-print flex items-center justify-between pt-2">
               <button
                 onClick={() => onChangeStage('anamnese')}
                 className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
@@ -313,7 +313,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               onUpdatePrescription={onUpdatePrescription}
             />
             {/* Step navigation prompts */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="no-print flex items-center justify-between pt-2">
               <button
                 onClick={() => onChangeStage('antropometria')}
                 className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
@@ -341,7 +341,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               onUpdateMealPlan={onUpdateMealPlan}
             />
             {/* Step navigation prompts */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="no-print flex items-center justify-between pt-2">
               <button
                 onClick={() => onChangeStage('metabolismo')}
                 className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
@@ -370,7 +370,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               onDeleteConsultation={onDeleteConsultation}
             />
             {/* Step navigation prompts */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="no-print flex items-center justify-between pt-2">
               <button
                 onClick={() => onChangeStage('cardapio')}
                 className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
