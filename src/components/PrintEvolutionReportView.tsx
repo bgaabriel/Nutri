@@ -76,8 +76,8 @@ export const PrintEvolutionReportView: React.FC<PrintEvolutionReportViewProps> =
     const wLatest = latestSession.anthropometry.weight;
     const weightDelta = wLatest - wInit;
 
-    const fatInit = initialSession.calculated?.bodyFatPercentage || 0;
-    const fatLatest = latestSession.calculated?.bodyFatPercentage || 0;
+    const fatInit = initialSession.calculated?.bodyFatPercent || 0;
+    const fatLatest = latestSession.calculated?.bodyFatPercent || 0;
     const fatDelta = fatLatest - fatInit;
 
     const leanInit = initialSession.calculated?.leanMassKg || 0;
@@ -150,7 +150,7 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
   };
 
   const weights = allSessions.map((s) => s.anthropometry.weight);
-  const fats = allSessions.map((s) => s.calculated?.bodyFatPercentage || 0);
+  const fats = allSessions.map((s) => s.calculated?.bodyFatPercent || 0);
 
   return (
     <div className="max-w-5xl mx-auto py-6 px-4">
@@ -518,11 +518,11 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
                         {s.anthropometry.weight.toFixed(1)} kg
                       </td>
                       <td className="py-2.5 px-3 text-slate-700">
-                        {s.calculated?.bmi ? `${s.calculated.bmi.toFixed(1)} kg/m²` : '—'}
+                        {s.calculated?.imc ? `${s.calculated.imc.toFixed(1)} kg/m²` : '—'}
                       </td>
                       <td className="py-2.5 px-3 font-bold text-blue-700">
-                        {s.calculated?.bodyFatPercentage
-                          ? `${s.calculated.bodyFatPercentage.toFixed(1)}%`
+                        {s.calculated?.bodyFatPercent
+                          ? `${s.calculated.bodyFatPercent.toFixed(1)}%`
                           : '—'}
                       </td>
                       <td className="py-2.5 px-3 text-slate-700">
@@ -542,8 +542,8 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
                           : '—'}
                       </td>
                       <td className="py-2.5 px-3 font-bold text-emerald-800">
-                        {s.calculated?.targetCalories
-                          ? `${Math.round(s.calculated.targetCalories)} kcal`
+                        {s.calculated?.vet
+                          ? `${Math.round(s.calculated.vet)} kcal`
                           : '—'}
                       </td>
                     </tr>

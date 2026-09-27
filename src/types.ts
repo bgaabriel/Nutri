@@ -173,6 +173,7 @@ export interface ProfessionalProfile {
   clinic: string;
   phone: string;
   email: string;
+  address?: string; // endereço do consultório / observação de rodapé
 }
 
 export type AppointmentStatus =

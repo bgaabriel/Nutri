@@ -29,7 +29,6 @@ import {
 } from './storage';
 import { calculateAllMetrics } from './calculations';
 import { OverviewDashboard } from './components/OverviewDashboard';
-import { CalendarAgendaView } from './components/CalendarAgendaView';
 import { PatientsDirectoryView } from './components/PatientsDirectoryView';
 import { PatientRecordView, ClinicalStage } from './components/PatientRecordView';
 import { AppointmentModal } from './components/AppointmentModal';
@@ -842,14 +841,10 @@ export default function App() {
         isOpen={isAppointmentModalOpen}
         onClose={() => setIsAppointmentModalOpen(false)}
         patients={patients}
-        appointmentToEdit={selectedAppointment}
         appointment={selectedAppointment}
-        defaultDate={appointmentDefaultDate}
         initialDate={appointmentDefaultDate}
         onSave={handleSaveAppointment}
-        onSaveAppointment={handleSaveAppointment}
         onDelete={handleDeleteAppointment}
-        onDeleteAppointment={handleDeleteAppointment}
       />
 
       <PatientsModal
@@ -868,7 +863,6 @@ export default function App() {
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
         profile={profile}
-        onSaveProfile={handleSaveProfile}
         onSave={handleSaveProfile}
       />
     </div>

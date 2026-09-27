@@ -5,14 +5,10 @@ import { X, Calendar, Clock, User, CheckCircle2, AlertCircle, Trash2, Video, Bui
 interface AppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave?: (appointment: Appointment) => void;
-  onSaveAppointment?: (appointment: Appointment) => void;
-  onDelete?: (id: string) => void;
-  onDeleteAppointment?: (id: string) => void;
-  appointmentToEdit?: Appointment | null;
+  onSave: (appointment: Appointment) => void;
+  onDelete: (id: string) => void;
   appointment?: Appointment | null;
   patients: Patient[];
-  defaultDate?: string;
   initialDate?: string;
   defaultPatientId?: string;
 }
@@ -21,20 +17,14 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  onSaveAppointment,
   onDelete,
-  onDeleteAppointment,
-  appointmentToEdit,
   appointment,
   patients,
-  defaultDate,
   initialDate,
   defaultPatientId,
 }) => {
-  const effectiveAppointment = appointmentToEdit || appointment;
-  const effectiveDate = defaultDate || initialDate;
-  const handleSave = onSave || onSaveAppointment;
-  const handleDelete = onDelete || onDeleteAppointment;
+  const effectiveAppointment = appointment;
+  const effectiveDate = initialDate;
 
   const [patientId, setPatientId] = useState<string>('');
   const [customName, setCustomName] = useState<string>('');
@@ -117,9 +107,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
       paid,
     };
 
-    if (handleSave) {
-      handleSave(savedItem);
-    }
+    onSave(savedItem);
     onClose();
   };
 
@@ -134,7 +122,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900">
-                {appointmentToEdit ? 'Editar Agendamento' : 'Novo Agendamento na Agenda'}
+                {appointment ? 'Editar Agendamento' : 'Novo Agendamento na Agenda'}
               </h2>
               <p className="text-xs text-slate-500">
                 Organize os atendimentos e consultas do profissional
@@ -334,12 +322,12 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
 
           {/* Botões do Rodapé */}
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-            {effectiveAppointment && handleDelete ? (
+            {effectiveAppointment ? (
               <button
                 type="button"
                 onClick={() => {
                   if (confirm('Deseja realmente excluir este agendamento?')) {
-                    handleDelete(effectiveAppointment.id);
+                    onDelete(effectiveAppointment.id);
                     onClose();
                   }
                 }}

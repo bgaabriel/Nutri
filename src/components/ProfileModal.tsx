@@ -6,27 +6,22 @@ interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   profile: ProfessionalProfile;
-  onSaveProfile?: (profile: ProfessionalProfile) => void;
-  onSave?: (profile: ProfessionalProfile) => void;
+  onSave: (profile: ProfessionalProfile) => void;
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({
   isOpen,
   onClose,
   profile,
-  onSaveProfile,
   onSave,
 }) => {
   const [formData, setFormData] = useState<ProfessionalProfile>({ ...profile });
-  const handleSave = onSaveProfile || onSave;
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (handleSave) {
-      handleSave(formData);
-    }
+    onSave(formData);
     onClose();
   };
 
