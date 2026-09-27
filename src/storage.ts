@@ -159,6 +159,7 @@ export const initialConsultations: Consultation[] = [
       usualWeight: 86.0,
       height: 175,
       circumferences: {
+        chest: 108.0,
         neck: 42,
         waist: 98.0,
         abdomen: 104.0,
@@ -221,6 +222,7 @@ export const initialConsultations: Consultation[] = [
       usualWeight: 86.0,
       height: 175,
       circumferences: {
+        chest: 106.5,
         neck: 41,
         waist: 92.0,
         abdomen: 98.0,

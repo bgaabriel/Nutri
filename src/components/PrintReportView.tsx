@@ -222,6 +222,14 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
               <table className="w-full text-xs">
                 <tbody>
                   <tr>
+                    <td className="py-1">Peito / Tórax:</td>
+                    <td className="py-1 font-bold text-right">{consultation.anthropometry.circumferences.chest || '--'} cm</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">Pescoço:</td>
+                    <td className="py-1 font-bold text-right">{consultation.anthropometry.circumferences.neck || '--'} cm</td>
+                  </tr>
+                  <tr>
                     <td className="py-1">Cintura:</td>
                     <td className="py-1 font-bold text-right">{consultation.anthropometry.circumferences.waist || '--'} cm</td>
                   </tr>
@@ -240,6 +248,10 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
                   <tr>
                     <td className="py-1">Coxa:</td>
                     <td className="py-1 font-bold text-right">{consultation.anthropometry.circumferences.thigh || '--'} cm</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1">Panturrilha:</td>
+                    <td className="py-1 font-bold text-right">{consultation.anthropometry.circumferences.calf || '--'} cm</td>
                   </tr>
                 </tbody>
               </table>

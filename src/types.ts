@@ -35,6 +35,7 @@ export interface Anamnesis {
 export type FatProtocol = 'marinha' | 'faulkner' | 'jp7' | 'jp3';
 
 export interface Circumferences {
+  chest?: number; // peito / tórax (não entra em fórmula de gordura)
   neck: number;
   waist: number;
   abdomen: number;

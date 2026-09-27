@@ -141,6 +141,7 @@ export default function App() {
         usualWeight: 82.0,
         height: 175,
         circumferences: {
+          chest: 102.0,
           neck: 40.0,
           waist: 86.0,
           abdomen: 92.0,
@@ -221,6 +222,7 @@ export default function App() {
           usualWeight: 0,
           height: 170,
           circumferences: {
+            chest: 96,
             neck: 38,
             waist: 80,
             abdomen: 84,

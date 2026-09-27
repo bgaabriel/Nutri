@@ -512,9 +512,10 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
                   <th className="py-2.5 px-3">% Gordura</th>
                   <th className="py-2.5 px-3">Massa Magra</th>
                   <th className="py-2.5 px-3">Massa Gorda</th>
+                  <th className="py-2.5 px-3">Peito</th>
                   <th className="py-2.5 px-3">Cintura</th>
                   <th className="py-2.5 px-3">Abdômen</th>
-                  <th className="py-2.5 px-3">Meta Calórica</th>
+                  <th className="py-2.5 px-3">Meta (VET)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -558,6 +559,11 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
                       </td>
                       <td className="py-2.5 px-3 text-slate-700">
                         {s.calculated?.fatMassKg ? `${s.calculated.fatMassKg.toFixed(1)} kg` : '—'}
+                      </td>
+                      <td className="py-2.5 px-3 text-slate-700">
+                        {s.anthropometry.circumferences?.chest
+                          ? `${s.anthropometry.circumferences.chest.toFixed(1)} cm`
+                          : '—'}
                       </td>
                       <td className="py-2.5 px-3 text-slate-700">
                         {s.anthropometry.circumferences?.waist

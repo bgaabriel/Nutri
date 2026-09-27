@@ -662,6 +662,13 @@ export const ComparativeTab: React.FC<ComparativeTabProps> = ({
                 </td>
               </tr>
               {renderRow(
+                'Peito / Tórax',
+                s1 ? s1.anthropometry.circumferences.chest ?? 0 : undefined,
+                s2 ? s2.anthropometry.circumferences.chest ?? 0 : undefined,
+                'cm',
+                true
+              )}
+              {renderRow(
                 'Cintura',
                 s1?.anthropometry.circumferences.waist,
                 s2?.anthropometry.circumferences.waist,

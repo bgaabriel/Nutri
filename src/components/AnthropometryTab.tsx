@@ -143,7 +143,17 @@ export const AnthropometryTab: React.FC<AnthropometryTabProps> = ({
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
             Circunferências Corporais (cm)
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-600 mb-1">Peito / Tórax</label>
+              <input
+                type="number"
+                step="0.1"
+                value={circumferences.chest || ''}
+                onChange={(e) => updateCirc('chest', parseFloat(e.target.value) || 0)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none transition-all"
+              />
+            </div>
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1">Pescoço</label>
               <input
