@@ -17,6 +17,21 @@ export const TACO_FOODS: TacoFoodItem[] = [
   ...(alimentosComplementares as TacoFoodItem[]),
 ];
 
+/**
+ * Base em uso. Começa com o JSON local; depois do login o app troca pela tabela
+ * alimentos_taco do Supabase (definirBaseAlimentos). Se a consulta ao banco falhar,
+ * o JSON continua valendo.
+ */
+let baseAlimentos: TacoFoodItem[] = TACO_FOODS;
+
+export function obterAlimentos(): TacoFoodItem[] {
+  return baseAlimentos;
+}
+
+export function definirBaseAlimentos(alimentos: TacoFoodItem[]): void {
+  if (alimentos.length > 0) baseAlimentos = alimentos;
+}
+
 /** 'Todos' + os grupos presentes nos dados, na ordem da TACO, com os complementares por último. */
 export function categoriasDosAlimentos(alimentos: TacoFoodItem[]): string[] {
   const grupos = Array.from(new Set(alimentos.map((f) => f.grupo)));
@@ -24,7 +39,6 @@ export function categoriasDosAlimentos(alimentos: TacoFoodItem[]): string[] {
   return ['Todos', ...taco, ...(grupos.includes(GRUPO_COMPLEMENTARES) ? [GRUPO_COMPLEMENTARES] : [])];
 }
 
-export const TACO_CATEGORIES = categoriasDosAlimentos(TACO_FOODS);
 
 const MAPA_IDS_ANTIGOS = mapaIdsAntigos as Record<string, string>;
 
@@ -165,7 +179,7 @@ export function createDefaultMealPlan(
   targetKcal: number = 2000,
   weightKg: number = 70
 ): MealPlan {
-  const getFood = (id: string) => TACO_FOODS.find((f) => f.id === id);
+  const getFood = (id: string) => obterAlimentos().find((f) => f.id === id);
 
   const m1 = getFood('taco-488'); // ovo cozido
   const m2 = getFood('taco-052'); // pao integral

@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Patient, Consultation, MealPlan, Meal, TacoFoodItem, CalculatedMetrics } from '../types';
 import {
-  TACO_FOODS,
-  TACO_CATEGORIES,
+  obterAlimentos,
+  categoriasDosAlimentos,
   calculateFoodItemNutrients,
   sumMealNutrients,
   createDefaultMealPlan,
@@ -62,10 +62,14 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
   // Expandir / recolher seções de micronutrientes
   const [showMicros, setShowMicros] = useState<boolean>(true);
 
+  // Base de alimentos em uso (Supabase depois do login; JSON local como reserva)
+  const alimentos = obterAlimentos();
+  const categorias = useMemo(() => categoriasDosAlimentos(alimentos), [alimentos]);
+
   // Busca na base de alimentos (sem acentos, termos em qualquer ordem, até 50 por vez)
   const resultadoBusca = useMemo(
-    () => buscarAlimentos(TACO_FOODS, searchQuery, selectedCategory),
-    [searchQuery, selectedCategory]
+    () => buscarAlimentos(alimentos, searchQuery, selectedCategory),
+    [alimentos, searchQuery, selectedCategory]
   );
   const filteredFoods = resultadoBusca.itens;
 
@@ -202,7 +206,7 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
     tacoId: string,
     newGrams: number
   ) => {
-    const tacoFood = TACO_FOODS.find((f) => f.id === migrarTacoId(tacoId));
+    const tacoFood = alimentos.find((f) => f.id === migrarTacoId(tacoId));
     if (!tacoFood) return;
 
     const grams = Math.max(0, newGrams || 0);
@@ -754,7 +758,7 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
                   Alimentos da Tabela TACO
                 </h3>
                 <p className="text-xs text-slate-500">
-                  {TACO_FOODS.length} alimentos • Selecione o alimento e defina a porção em gramas
+                  {alimentos.length} alimentos • Selecione o alimento e defina a porção em gramas
                 </p>
               </div>
               <button
@@ -781,7 +785,7 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
 
               {/* Categorias Pills */}
               <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-                {TACO_CATEGORIES.map((cat) => (
+                {categorias.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}

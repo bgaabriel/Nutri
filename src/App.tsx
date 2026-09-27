@@ -3,7 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { Session } from '@supabase/supabase-js';
 import {
   Patient,
   Consultation,
@@ -16,17 +17,25 @@ import {
   MealPlan,
 } from './types';
 import {
-  loadPatients,
-  savePatients,
-  loadConsultations,
-  saveConsultations,
-  loadProfile,
-  saveProfile,
-  loadAppointments,
-  saveAppointments,
-  exportBackupData,
-  importBackupData,
-} from './storage';
+  listarPacientes,
+  salvarPaciente,
+  atualizarPaciente,
+  listarConsultas,
+  salvarConsulta,
+  excluirConsulta,
+  listarAgendamentos,
+  salvarAgendamento,
+  excluirAgendamento,
+  carregarPerfil,
+  salvarPerfil,
+  listarAlimentos,
+  montarBackup,
+  importarBackup,
+  NovoPaciente,
+  DadosAgendamento,
+} from './lib/db';
+import { supabase, supabaseConfigurado } from './lib/supabase';
+import { definirBaseAlimentos } from './data/tacoFoods';
 import { calculateAllMetrics } from './calculations';
 import { OverviewDashboard } from './components/OverviewDashboard';
 import { PatientsDirectoryView } from './components/PatientsDirectoryView';
@@ -35,26 +44,169 @@ import { AppointmentModal } from './components/AppointmentModal';
 import { PatientsModal, PatientsModalMode } from './components/PatientsModal';
 import { ProfileModal } from './components/ProfileModal';
 import { ConsultorioReportView } from './components/ConsultorioReportView';
+import { LoginPage } from './pages/LoginPage';
+import { SignUpPage } from './pages/SignUpPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import {
   Users,
   LayoutDashboard,
   FileText,
   Settings,
   CheckCircle2,
+  LogOut,
+  AlertCircle,
+  Loader2,
 } from 'lucide-react';
 import { hojeLocalISO } from './utils/date';
 
 export type MainTab = 'panorama' | 'agenda' | 'pacientes' | 'prontuario';
 
+const CAMINHO_NOVA_SENHA = '/redefinir-senha';
+
+/**
+ * Porta de entrada: sem sessão, nada do consultório é renderizado.
+ * Mostra login / cadastro / nova senha e, com sessão, o app.
+ */
 export default function App() {
-  const [patients, setPatients] = useState<Patient[]>(() => loadPatients());
-  const [activePatientId, setActivePatientId] = useState<string>(() => {
-    const list = loadPatients();
-    return list.length > 0 ? list[0].id : 'p1';
-  });
-  const [consultations, setConsultations] = useState<Consultation[]>(() => loadConsultations());
-  const [appointments, setAppointments] = useState<Appointment[]>(() => loadAppointments());
-  const [profile, setProfile] = useState<ProfessionalProfile>(() => loadProfile());
+  const [session, setSession] = useState<Session | null>(null);
+  const [verificando, setVerificando] = useState(true);
+  const [tela, setTela] = useState<'login' | 'cadastro'>('login');
+  const [redefinindoSenha, setRedefinindoSenha] = useState(
+    () => window.location.pathname === CAMINHO_NOVA_SENHA
+  );
+
+  useEffect(() => {
+    if (!supabaseConfigurado) return;
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setVerificando(false);
+    });
+    const { data } = supabase.auth.onAuthStateChange((evento, novaSessao) => {
+      setSession(novaSessao);
+      if (evento === 'PASSWORD_RECOVERY') setRedefinindoSenha(true);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  if (!supabaseConfigurado) {
+    return (
+      <TelaAviso
+        titulo="Supabase não configurado"
+        texto="Crie o arquivo .env.local com VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (veja .env.example e supabase/LEIA-ME.md) e reinicie o app."
+      />
+    );
+  }
+
+  if (verificando) return <TelaCarregando texto="Verificando acesso…" />;
+
+  if (redefinindoSenha && session) {
+    return (
+      <ResetPasswordPage
+        onConcluir={() => {
+          setRedefinindoSenha(false);
+          window.history.replaceState(null, '', '/');
+        }}
+      />
+    );
+  }
+
+  if (!session) {
+    return tela === 'cadastro' ? (
+      <SignUpPage onVoltar={() => setTela('login')} />
+    ) : (
+      <LoginPage onCriarConta={() => setTela('cadastro')} />
+    );
+  }
+
+  // key: trocar de conta recarrega tudo do zero
+  return <ConsultorioApp key={session.user.id} onSair={() => supabase.auth.signOut()} />;
+}
+
+const TelaCarregando: React.FC<{ texto: string }> = ({ texto }) => (
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600">
+    <Loader2 className="w-5 h-5 text-emerald-600 animate-spin" />
+    <span>{texto}</span>
+  </div>
+);
+
+const TelaAviso: React.FC<{ titulo: string; texto: string; acao?: React.ReactNode }> = ({ titulo, texto, acao }) => (
+  <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-xs p-6 max-w-md w-full text-center space-y-3">
+      <AlertCircle className="w-8 h-8 text-amber-500 mx-auto" />
+      <h1 className="text-base font-extrabold text-slate-900">{titulo}</h1>
+      <p className="text-xs text-slate-600">{texto}</p>
+      {acao}
+    </div>
+  </div>
+);
+
+const perfilVazio: ProfessionalProfile = { name: '', crn: '', clinic: '', phone: '', email: '' };
+
+/** Rascunho da consulta de hoje: repete os dados da última consulta ou começa em branco. */
+function criarRascunho(patientId: string, historico: Consultation[]): Consultation {
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const ultima = historico.length > 0 ? historico[historico.length - 1] : null;
+  if (ultima) {
+    return {
+      id: 'rascunho',
+      patientId,
+      date: hoje,
+      title: `Retorno (${hoje})`,
+      anamnesis: { ...ultima.anamnesis },
+      anthropometry: {
+        ...ultima.anthropometry,
+        circumferences: { ...ultima.anthropometry.circumferences },
+        skinfolds: { ...ultima.anthropometry.skinfolds },
+      },
+      prescription: { ...ultima.prescription },
+    };
+  }
+  return {
+    id: 'rascunho',
+    patientId,
+    date: hoje,
+    title: `Consulta Inicial (${hoje})`,
+    anamnesis: {
+      occupation: '',
+      workRoutine: '',
+      foodRecall: '',
+      sleepHabit: '',
+      waterIntakeLiters: '',
+      bowelHabit: '',
+      trainingRoutine: '',
+      allergiesAversions: '',
+      clinicalNotes: '',
+      labExams: { fastingGlucose: '', totalCholesterol: '', hdlCholesterol: '', triglycerides: '', otherExams: '' },
+    },
+    anthropometry: {
+      weight: 70,
+      usualWeight: 0,
+      height: 170,
+      circumferences: { chest: 0, neck: 0, waist: 0, abdomen: 0, hip: 0, relaxedArm: 0, thigh: 0, calf: 0 },
+      skinfolds: { triceps: 0, subscapular: 0, chest: 0, midaxillary: 0, suprailiac: 0, abdominal: 0, thigh: 0 },
+      fatProtocol: 'marinha',
+    },
+    prescription: {
+      bmrFormula: 'mifflin',
+      activityFactor: 1.55,
+      targetKcalAdjustment: 0,
+      proteinGKg: 1.6,
+      carbGKg: 0,
+      fatGKg: 0.8,
+    },
+  };
+}
+
+function ConsultorioApp({ onSair }: { onSair: () => void }) {
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [activePatientId, setActivePatientId] = useState<string>('');
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [profile, setProfile] = useState<ProfessionalProfile>(perfilVazio);
+
+  // Carregamento dos dados da conta depois do login
+  const [carregando, setCarregando] = useState(true);
+  const [erroCarga, setErroCarga] = useState<string | null>(null);
 
   // Main screen navigation: 'panorama' | 'agenda' | 'pacientes' | 'prontuario'
   const [activeMainTab, setActiveMainTab] = useState<MainTab>('panorama');
@@ -69,108 +221,68 @@ export default function App() {
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [appointmentDefaultDate, setAppointmentDefaultDate] = useState<string | undefined>(undefined);
+  const [appointmentDefaultPatientId, setAppointmentDefaultPatientId] = useState<string | undefined>(undefined);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastErro, setToastErro] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Um aviso novo reinicia o tempo (o timer do aviso anterior não pode apagá-lo antes da hora)
+  const toastTimer = useRef<number | undefined>(undefined);
+  const showToast = (msg: string, erro = false) => {
+    setToastMessage(msg);
+    setToastErro(erro);
+    window.clearTimeout(toastTimer.current);
+    toastTimer.current = window.setTimeout(() => setToastMessage(null), erro ? 6000 : 3500);
+  };
+  const mostrarErro = (e: unknown) => showToast(e instanceof Error ? e.message : String(e), true);
+
+  const carregarTudo = useCallback(async () => {
+    setCarregando(true);
+    setErroCarga(null);
+    try {
+      const [pacientes, consultas, agenda, perfil] = await Promise.all([
+        listarPacientes(),
+        listarConsultas(),
+        listarAgendamentos(),
+        carregarPerfil(),
+      ]);
+      setPatients(pacientes);
+      setConsultations(consultas);
+      setAppointments(agenda);
+      setProfile(perfil);
+      setActivePatientId((atual) => atual || pacientes[0]?.id || '');
+    } catch (e) {
+      setErroCarga(e instanceof Error ? e.message : 'Erro ao carregar os dados.');
+    } finally {
+      setCarregando(false);
+    }
+    // Tabela TACO do banco (uma vez por login); se falhar, o JSON local continua valendo
+    listarAlimentos()
+      .then(definirBaseAlimentos)
+      .catch((e) => console.warn('TACO do Supabase indisponível; usando a base local.', e));
+  }, []);
+
+  useEffect(() => {
+    carregarTudo();
+  }, [carregarTudo]);
+
   // Active patient object
-  const activePatient =
-    patients.find((p) => p.id === activePatientId) ||
+  const activePatient: Patient = patients.find((p) => p.id === activePatientId) ||
     patients[0] || {
-      id: 'p1',
-      name: 'João Silva',
-      age: 30,
+      id: '',
+      name: '',
+      age: 0,
       sex: 'M',
-      objective: 'Avaliação Nutricional',
-      createdAt: '2026-01-10',
+      objective: '',
+      createdAt: hojeLocalISO(),
     };
 
   // Active patient's consultation history
   const activePatientHistory = consultations.filter((c) => c.patientId === activePatient.id);
 
   // Active consultation draft
-  const [currentConsultation, setCurrentConsultation] = useState<Consultation>(() => {
-    const history = loadConsultations().filter((c) => c.patientId === activePatientId);
-    const lastSession = history.length > 0 ? history[history.length - 1] : null;
-
-    const todayStr = new Date().toLocaleDateString('pt-BR');
-
-    if (lastSession) {
-      return {
-        id: 'draft_' + Date.now(),
-        patientId: activePatientId,
-        date: todayStr,
-        title: `Consulta de Retorno (${todayStr})`,
-        anamnesis: { ...lastSession.anamnesis },
-        anthropometry: {
-          ...lastSession.anthropometry,
-          weight: lastSession.anthropometry.weight || 85.0,
-          circumferences: { ...lastSession.anthropometry.circumferences },
-          skinfolds: { ...lastSession.anthropometry.skinfolds },
-          fatProtocol: lastSession.anthropometry.fatProtocol || 'marinha',
-        },
-        prescription: { ...lastSession.prescription },
-      };
-    }
-
-    return {
-      id: 'draft_' + Date.now(),
-      patientId: activePatientId,
-      date: todayStr,
-      title: `Consulta Inicial (${todayStr})`,
-      anamnesis: {
-        occupation: 'Analista administrativo',
-        workRoutine: 'Escritório 8h–18h, sentado, almoça fora',
-        foodRecall: '',
-        sleepHabit: '7 horas, sono agitado',
-        waterIntakeLiters: '1.5 Litros',
-        bowelHabit: 'Irregular (a cada 2 dias)',
-        trainingRoutine: 'Musculação, 3x na semana, intensidade moderada',
-        allergiesAversions: 'Intolerância a lactose leve. Não gosta de fígado.',
-        clinicalNotes: 'Uso contínuo de Omeprazol.',
-        labExams: {
-          fastingGlucose: '95 mg/dL',
-          totalCholesterol: '180 mg/dL',
-          hdlCholesterol: '45 mg/dL',
-          triglycerides: '120 mg/dL',
-          otherExams: '',
-        },
-      },
-      anthropometry: {
-        weight: 85.0,
-        usualWeight: 82.0,
-        height: 175,
-        circumferences: {
-          chest: 102.0,
-          neck: 40.0,
-          waist: 86.0,
-          abdomen: 92.0,
-          hip: 102.0,
-          relaxedArm: 32.0,
-          thigh: 58.0,
-          calf: 38.0,
-        },
-        skinfolds: {
-          triceps: 12.0,
-          subscapular: 18.0,
-          chest: 10.0,
-          midaxillary: 10.0,
-          suprailiac: 20.0,
-          abdominal: 25.0,
-          thigh: 15.0,
-        },
-        fatProtocol: 'marinha',
-      },
-      prescription: {
-        bmrFormula: 'mifflin',
-        activityFactor: 1.55,
-        targetKcalAdjustment: -500,
-        proteinGKg: 2.0,
-        carbGKg: 3.0,
-        fatGKg: 0.8,
-      },
-    };
-  });
+  const [currentConsultation, setCurrentConsultation] = useState<Consultation>(() => criarRascunho('', []));
 
   // Switch active patient
   const handleSelectPatient = (patientId: string, initialStage?: ClinicalStage) => {
@@ -178,103 +290,41 @@ export default function App() {
     if (initialStage) {
       setClinicalStage(initialStage);
     }
-    const history = consultations.filter((c) => c.patientId === patientId);
-    const todayStr = new Date().toLocaleDateString('pt-BR');
-
-    if (history.length > 0) {
-      const last = history[history.length - 1];
-      setCurrentConsultation({
-        id: 'draft_' + Date.now(),
+    setCurrentConsultation(
+      criarRascunho(
         patientId,
-        date: todayStr,
-        title: `Retorno (${todayStr})`,
-        anamnesis: { ...last.anamnesis },
-        anthropometry: { ...last.anthropometry },
-        prescription: { ...last.prescription },
-      });
-    } else {
-      setCurrentConsultation({
-        id: 'draft_' + Date.now(),
-        patientId,
-        date: todayStr,
-        title: `Consulta Inicial (${todayStr})`,
-        anamnesis: {
-          occupation: '',
-          workRoutine: '',
-          foodRecall: '',
-          sleepHabit: '',
-          waterIntakeLiters: '2.0 Litros',
-          bowelHabit: 'Diário',
-          trainingRoutine: '',
-          allergiesAversions: '',
-          clinicalNotes: '',
-          labExams: {
-            fastingGlucose: '',
-            totalCholesterol: '',
-            hdlCholesterol: '',
-            triglycerides: '',
-            otherExams: '',
-          },
-        },
-        anthropometry: {
-          weight: 70.0,
-          usualWeight: 0,
-          height: 170,
-          circumferences: {
-            chest: 96,
-            neck: 38,
-            waist: 80,
-            abdomen: 84,
-            hip: 98,
-            relaxedArm: 30,
-            thigh: 54,
-            calf: 36,
-          },
-          skinfolds: {
-            triceps: 10,
-            subscapular: 14,
-            chest: 8,
-            midaxillary: 8,
-            suprailiac: 16,
-            abdominal: 20,
-            thigh: 12,
-          },
-          fatProtocol: 'marinha',
-        },
-        prescription: {
-          bmrFormula: 'mifflin',
-          activityFactor: 1.55,
-          targetKcalAdjustment: 0,
-          proteinGKg: 2.0,
-          carbGKg: 3.5,
-          fatGKg: 0.8,
-        },
-      });
-    }
-  };
-
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+        consultations.filter((c) => c.patientId === patientId)
+      )
+    );
   };
 
   // Patients handling
-  const handleAddPatient = (newPatient: Patient) => {
-    const updated = [...patients, newPatient];
-    setPatients(updated);
-    savePatients(updated);
-    setActivePatientId(newPatient.id);
-    handleSelectPatient(newPatient.id, 'anamnese');
-    setActiveMainTab('prontuario');
-    showToast(`Paciente ${newPatient.name} cadastrado com sucesso!`);
+  const handleAddPatient = async (dados: NovoPaciente) => {
+    try {
+      const novo = await salvarPaciente(dados);
+      setPatients((lista) => [...lista, novo]);
+      handleSelectPatient(novo.id, 'anamnese');
+      setActiveMainTab('prontuario');
+      showToast(`Paciente ${novo.name} cadastrado com sucesso!`);
+    } catch (e) {
+      mostrarErro(e);
+    }
   };
 
+  // A Anamnese atualiza o cadastro a cada tecla: grava no banco com um pequeno atraso
+  const pendentesPaciente = useRef(new Map<string, { campos: Partial<Patient>; timer: number }>());
   const handleUpdatePatient = (updatedFields: Partial<Patient>) => {
-    const updatedPatients = patients.map((p) =>
-      p.id === activePatient.id ? { ...p, ...updatedFields } : p
-    );
-    setPatients(updatedPatients);
-    savePatients(updatedPatients);
+    const id = activePatient.id;
+    if (!id) return;
+    setPatients((lista) => lista.map((p) => (p.id === id ? { ...p, ...updatedFields } : p)));
+    const anterior = pendentesPaciente.current.get(id);
+    if (anterior) window.clearTimeout(anterior.timer);
+    const campos = { ...anterior?.campos, ...updatedFields };
+    const timer = window.setTimeout(() => {
+      pendentesPaciente.current.delete(id);
+      atualizarPaciente(id, campos).catch(mostrarErro);
+    }, 700);
+    pendentesPaciente.current.set(id, { campos, timer });
   };
 
   // Consultation draft updates
@@ -315,25 +365,19 @@ export default function App() {
   );
 
   // Save consultation to history
-  const handleSaveConsultation = () => {
-    const calculated = calculateAllMetrics(
-      activePatient.age,
-      activePatient.sex,
-      currentConsultation.anthropometry,
-      currentConsultation.prescription
-    );
-
-    const newRecord: Consultation = {
-      ...currentConsultation,
-      id: 'c_' + Date.now(),
-      patientId: activePatient.id,
-      calculated,
-    };
-
-    const updated = [...consultations, newRecord];
-    setConsultations(updated);
-    saveConsultations(updated);
-    showToast(`Consulta salva com sucesso no histórico de ${activePatient.name}!`);
+  const handleSaveConsultation = async () => {
+    if (!activePatient.id) return;
+    try {
+      const salva = await salvarConsulta({
+        ...currentConsultation,
+        patientId: activePatient.id,
+        calculated: calculatedMetrics,
+      });
+      setConsultations((lista) => [...lista, salva]);
+      showToast(`Consulta salva com sucesso no histórico de ${activePatient.name}!`);
+    } catch (e) {
+      mostrarErro(e);
+    }
   };
 
   const handleLoadConsultation = (session: Consultation) => {
@@ -341,73 +385,89 @@ export default function App() {
     const { calculated: _registroHistorico, ...dadosDaConsulta } = session;
     setCurrentConsultation({
       ...dadosDaConsulta,
-      id: 'draft_' + Date.now(),
+      id: 'rascunho',
     });
     setClinicalStage('antropometria');
     showToast(`Consulta de ${session.date} carregada para edição.`);
   };
 
-  const handleDeleteConsultation = (id: string) => {
-    const updated = consultations.filter((c) => c.id !== id);
-    setConsultations(updated);
-    saveConsultations(updated);
-    showToast('Registro de consulta excluído.');
+  const handleDeleteConsultation = async (id: string) => {
+    try {
+      await excluirConsulta(id);
+      setConsultations((lista) => lista.filter((c) => c.id !== id));
+      showToast('Registro de consulta excluído.');
+    } catch (e) {
+      mostrarErro(e);
+    }
   };
 
   // Appointments / Agenda handling
-  const handleSaveAppointment = (appointment: Appointment) => {
-    let updated: Appointment[];
-    const exists = appointments.some((a) => a.id === appointment.id);
-    if (exists) {
-      updated = appointments.map((a) => (a.id === appointment.id ? appointment : a));
-      showToast('Agendamento atualizado com sucesso!');
-    } else {
-      updated = [...appointments, appointment];
-      showToast('Consulta agendada com sucesso!');
+  const handleSaveAppointment = async (dados: DadosAgendamento, id?: string) => {
+    try {
+      const salvo = await salvarAgendamento(dados, id);
+      setAppointments((lista) => (id ? lista.map((a) => (a.id === id ? salvo : a)) : [...lista, salvo]));
+      showToast(id ? 'Agendamento atualizado com sucesso!' : 'Consulta agendada com sucesso!');
+    } catch (e) {
+      mostrarErro(e);
     }
-    setAppointments(updated);
-    saveAppointments(updated);
   };
 
-  const handleDeleteAppointment = (appointmentId: string) => {
-    const updated = appointments.filter((a) => a.id !== appointmentId);
-    setAppointments(updated);
-    saveAppointments(updated);
-    showToast('Agendamento removido da agenda.');
+  const handleDeleteAppointment = async (appointmentId: string) => {
+    try {
+      await excluirAgendamento(appointmentId);
+      setAppointments((lista) => lista.filter((a) => a.id !== appointmentId));
+      showToast('Agendamento removido da agenda.');
+    } catch (e) {
+      mostrarErro(e);
+    }
   };
 
   const handleUpdateAppointmentStatus = (id: string, status: AppointmentStatus) => {
-    const updated = appointments.map((a) => (a.id === id ? { ...a, status } : a));
-    setAppointments(updated);
-    saveAppointments(updated);
-    showToast(`Status da consulta atualizado.`);
+    const atual = appointments.find((a) => a.id === id);
+    if (!atual) return;
+    const { id: _id, patientName: _nome, ...dados } = atual;
+    salvarAgendamento({ ...dados, status }, id)
+      .then((salvo) => {
+        setAppointments((lista) => lista.map((a) => (a.id === id ? salvo : a)));
+        showToast('Status da consulta atualizado.');
+      })
+      .catch(mostrarErro);
   };
 
   const handleOpenNewAppointment = (date?: string, patientId?: string) => {
     setSelectedAppointment(null);
     setAppointmentDefaultDate(date || hojeLocalISO());
-    if (patientId) {
-      setActivePatientId(patientId);
-    }
+    setAppointmentDefaultPatientId(patientId);
     setIsAppointmentModalOpen(true);
   };
 
   const handleEditAppointment = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
     setAppointmentDefaultDate(appointment.date);
+    setAppointmentDefaultPatientId(undefined);
     setIsAppointmentModalOpen(true);
   };
 
-  // Profile handling
-  const handleSaveProfile = (newProfile: ProfessionalProfile) => {
-    setProfile(newProfile);
-    saveProfile(newProfile);
-    showToast('Dados profissionais atualizados!');
+  // Profile handling (CPF, CRN e e-mail não mudam pelo app)
+  const handleSaveProfile = async (newProfile: ProfessionalProfile) => {
+    try {
+      await salvarPerfil(newProfile);
+      setProfile((atual) => ({
+        ...atual,
+        name: newProfile.name,
+        clinic: newProfile.clinic,
+        phone: newProfile.phone,
+        address: newProfile.address,
+      }));
+      showToast('Dados profissionais atualizados!');
+    } catch (e) {
+      mostrarErro(e);
+    }
   };
 
-  // Export / Import local backup JSON
+  // Export / Import backup JSON
   const handleExportBackup = () => {
-    const dataStr = exportBackupData();
+    const dataStr = montarBackup(profile, patients, consultations, appointments);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -423,31 +483,70 @@ export default function App() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       const content = ev.target?.result as string;
-      if (content) {
-        const ok = importBackupData(content);
-        if (ok) {
-          setPatients(loadPatients());
-          setConsultations(loadConsultations());
-          setAppointments(loadAppointments());
-          setProfile(loadProfile());
-          showToast('Backup restaurado com sucesso!');
-        } else {
-          showToast('Erro ao importar arquivo de backup.');
-        }
+      if (!content) return;
+      try {
+        const resumo = await importarBackup(content);
+        await carregarTudo();
+        const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`;
+        showToast(
+          `${plural(resumo.pacientes, 'paciente', 'pacientes')}, ${plural(resumo.consultas, 'consulta', 'consultas')} e ${plural(
+            resumo.agendamentos,
+            'agendamento',
+            'agendamentos'
+          )} importados.` + (resumo.ignorados ? ` ${resumo.ignorados} registro(s) sem paciente foram ignorados.` : '')
+        );
+      } catch (err) {
+        mostrarErro(err);
       }
     };
     reader.readAsText(file);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  if (carregando && patients.length === 0 && !erroCarga) return <TelaCarregando texto="Carregando o consultório…" />;
+
+  if (erroCarga) {
+    return (
+      <TelaAviso
+        titulo="Não foi possível carregar seus dados"
+        texto={erroCarga}
+        acao={
+          <div className="flex gap-2 justify-center pt-1">
+            <button
+              onClick={carregarTudo}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+            >
+              Tentar de novo
+            </button>
+            <button
+              onClick={onSair}
+              className="px-4 py-2 border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-bold cursor-pointer"
+            >
+              Sair
+            </button>
+          </div>
+        }
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-slate-50 text-slate-800 transition-colors">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 flex items-center gap-2 bg-emerald-700 text-white px-4 py-3 rounded-2xl shadow-xl font-bold text-sm border border-emerald-600 animate-in fade-in slide-in-from-top-4">
-          <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+        <div
+          role={toastErro ? 'alert' : 'status'}
+          className={`fixed top-5 right-5 z-50 flex items-center gap-2 text-white px-4 py-3 rounded-2xl shadow-xl font-bold text-sm border max-w-md animate-in fade-in slide-in-from-top-4 ${
+            toastErro ? 'bg-red-700 border-red-600' : 'bg-emerald-700 border-emerald-600'
+          }`}
+        >
+          {toastErro ? (
+            <AlertCircle className="w-4 h-4 text-red-200 shrink-0" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 text-emerald-200 shrink-0" />
+          )}
           <span>{toastMessage}</span>
         </div>
       )}
@@ -560,17 +659,25 @@ export default function App() {
         {/* Sidebar Footer: Professional Profile */}
         <div className="p-4 border-t border-slate-100 space-y-3">
           {/* Professional profile badge */}
-          <div
-            onClick={() => setIsProfileModalOpen(true)}
-            className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition-colors flex items-center justify-between"
-          >
-            <div className="overflow-hidden pr-2">
-              <p className="text-xs font-bold text-slate-900 truncate">
-                {profile.name}
-              </p>
-              <p className="text-[10px] text-emerald-700 font-bold">{profile.crn}</p>
-            </div>
-            <Settings className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <div className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+            <button
+              onClick={() => setIsProfileModalOpen(true)}
+              title="Perfil, relatórios e backup"
+              className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <div className="overflow-hidden pr-2">
+                <p className="text-xs font-bold text-slate-900 truncate">{profile.name}</p>
+                <p className="text-[10px] text-emerald-700 font-bold">{profile.crn}</p>
+              </div>
+              <Settings className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            </button>
+            <button
+              onClick={onSair}
+              className="w-full flex items-center justify-center gap-1.5 py-1 text-[11px] font-bold text-slate-600 hover:text-red-700 bg-white hover:bg-red-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Sair</span>
+            </button>
           </div>
         </div>
       </aside>
@@ -676,6 +783,7 @@ export default function App() {
         patients={patients}
         appointment={selectedAppointment}
         initialDate={appointmentDefaultDate}
+        defaultPatientId={appointmentDefaultPatientId}
         onSave={handleSaveAppointment}
         onDelete={handleDeleteAppointment}
       />

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Appointment, AppointmentModality, AppointmentStatus, AppointmentType, Patient } from '../types';
+import type { DadosAgendamento } from '../lib/db';
 import { X, Calendar, Clock, User, CheckCircle2, Trash2, Video, Building2 } from 'lucide-react';
 import { hojeLocalISO } from '../utils/date';
 
 interface AppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (appointment: Appointment) => void;
+  /** Sem id cria um agendamento novo; com id atualiza o existente. */
+  onSave: (dados: DadosAgendamento, id?: string) => void;
   onDelete: (id: string) => void;
   appointment?: Appointment | null;
   patients: Patient[];
@@ -28,7 +30,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   const effectiveDate = initialDate;
 
   const [patientId, setPatientId] = useState<string>('');
-  const [customName, setCustomName] = useState<string>('');
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('09:00');
   const [durationMinutes, setDurationMinutes] = useState<number>(60);
@@ -42,7 +43,6 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
   useEffect(() => {
     if (effectiveAppointment) {
       setPatientId(effectiveAppointment.patientId || '');
-      setCustomName(effectiveAppointment.patientName || '');
       setDate(effectiveAppointment.date);
       setTime(effectiveAppointment.time);
       setDurationMinutes(effectiveAppointment.durationMinutes || 60);
@@ -64,39 +64,20 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
       setPrice('250');
       setPaid(false);
 
-      if (defaultPatientId) {
-        setPatientId(defaultPatientId);
-        const p = patients.find((pat) => pat.id === defaultPatientId);
-        setCustomName(p ? p.name : '');
-      } else if (patients.length > 0) {
-        setPatientId(patients[0].id);
-        setCustomName(patients[0].name);
-      } else {
-        setPatientId('');
-        setCustomName('');
-      }
+      setPatientId(defaultPatientId || patients[0]?.id || '');
     }
   }, [effectiveAppointment, isOpen, effectiveDate, defaultPatientId, patients]);
 
   if (!isOpen) return null;
 
-  const handlePatientSelect = (id: string) => {
-    setPatientId(id);
-    const found = patients.find((p) => p.id === id);
-    if (found) {
-      setCustomName(found.name);
-    }
-  };
+  const handlePatientSelect = (id: string) => setPatientId(id);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finalPatientName =
-      patients.find((p) => p.id === patientId)?.name || customName.trim() || 'Paciente Sem Nome';
+    if (!patientId) return;
 
-    const savedItem: Appointment = {
-      id: effectiveAppointment ? effectiveAppointment.id : 'apt_' + Date.now(),
-      patientId: patientId || (patients.length > 0 ? patients[0].id : 'p1'),
-      patientName: finalPatientName,
+    const dados: DadosAgendamento = {
+      patientId,
       date,
       time,
       durationMinutes,
@@ -108,7 +89,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
       paid,
     };
 
-    onSave(savedItem);
+    onSave(dados, effectiveAppointment?.id);
     onClose();
   };
 
@@ -147,6 +128,7 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
               <span>Paciente Vinculado ao Prontuário</span>
             </label>
             <select
+              required
               value={patientId}
               onChange={(e) => handlePatientSelect(e.target.value)}
               className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none transition-all"
@@ -158,6 +140,11 @@ export const AppointmentModal: React.FC<AppointmentModalProps> = ({
                 </option>
               ))}
             </select>
+            {patients.length === 0 && (
+              <p className="text-[11px] text-amber-700 font-semibold mt-1">
+                Cadastre um paciente em &quot;Pacientes&quot; antes de agendar.
+              </p>
+            )}
           </div>
 
           {/* Data, Horário e Duração */}

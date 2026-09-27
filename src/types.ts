@@ -198,7 +198,10 @@ export interface CalculatedMetrics {
 
 export interface ProfessionalProfile {
   name: string;
-  crn: string;
+  crn: string; // texto de exibição, ex.: "CRN-3 45920"
+  crnRegiao?: number;
+  crnNumero?: string;
+  cpf?: string;
   clinic: string;
   phone: string;
   email: string;

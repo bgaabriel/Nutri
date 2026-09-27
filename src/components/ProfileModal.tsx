@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ProfessionalProfile } from '../types';
+import { mascararCPF } from '../utils/documentos';
+
+const formatarCPF = (cpf?: string) => (cpf ? mascararCPF(cpf) : '');
 import { Award, BarChart3, Download, Upload, X } from 'lucide-react';
 
 interface ProfileModalProps {
@@ -68,18 +71,23 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Registro Profissional (CRN / UF)
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.crn}
-              onChange={(e) => setFormData({ ...formData, crn: e.target.value })}
-              placeholder="Ex: CRN-3 45920"
-              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none"
-            />
+          {/* Identificadores de login: só leitura (o banco bloqueia a alteração) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+            {[
+              { rotulo: 'CPF', valor: formatarCPF(profile.cpf) },
+              { rotulo: 'CRN', valor: profile.crn },
+              { rotulo: 'E-mail', valor: profile.email },
+            ].map((item) => (
+              <div key={item.rotulo} className="min-w-0">
+                <span className="block text-[10px] uppercase font-bold text-slate-500">{item.rotulo}</span>
+                <span className="block text-xs font-semibold text-slate-800 truncate" title={item.valor}>
+                  {item.valor || '—'}
+                </span>
+              </div>
+            ))}
+            <p className="sm:col-span-3 text-[10px] text-slate-500">
+              CPF, CRN e e-mail são usados no login e não podem ser alterados por aqui.
+            </p>
           </div>
 
           <div>
@@ -95,25 +103,14 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Telefone</label>
-              <input
-                type="text"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">E-mail</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Telefone</label>
+            <input
+              type="text"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none"
+            />
           </div>
 
           <div>
@@ -149,8 +146,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
           <div className="pt-3 border-t border-slate-100">
             <h4 className="text-xs font-bold text-slate-800 mb-1">Backup</h4>
             <p className="text-[11px] text-slate-500 mb-2">
-              Exporte uma cópia dos seus pacientes, consultas e agendamentos em JSON ou restaure a
-              partir de um arquivo exportado antes.
+              Exporte uma cópia dos seus pacientes, consultas e agendamentos em JSON. &quot;Restaurar&quot;
+              importa um backup (inclusive o da versão antiga, que guardava no navegador) para esta conta.
             </p>
             <div className="flex gap-2">
               <button

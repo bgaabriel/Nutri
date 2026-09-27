@@ -145,10 +145,10 @@ export const ConsultorioReportView: React.FC<ConsultorioReportViewProps> = ({
           <div className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
             <Database className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              <strong className="text-slate-800">Armazenamento dos dados:</strong> nesta versão, os dados
-              ficam gravados no armazenamento local deste navegador, neste computador. Eles não são
-              sincronizados com outros aparelhos e podem ser perdidos se os dados do navegador forem
-              apagados. Use &quot;Exportar backup (JSON)&quot; no perfil para guardar uma cópia.
+              <strong className="text-slate-800">Armazenamento dos dados:</strong> os dados ficam
+              armazenados no servidor (Supabase, região São Paulo), com acesso restrito à sua conta: cada
+              nutricionista só consegue ler e alterar os próprios pacientes, consultas e agendamentos. Use
+              &quot;Exportar backup (JSON)&quot; no perfil para guardar uma cópia própria.
             </p>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Patient, Sex } from '../types';
+import type { NovoPaciente } from '../lib/db';
 import { User, X, Search, Check } from 'lucide-react';
-import { hojeLocalISO } from '../utils/date';
 
 export type PatientsModalMode = 'cadastrar' | 'selecionar';
 
@@ -12,7 +12,7 @@ interface PatientsModalProps {
   patients: Patient[];
   activePatientId: string;
   onSelectPatient: (patientId: string) => void;
-  onAddPatient: (newPatient: Patient) => void;
+  onAddPatient: (dados: NovoPaciente) => void;
 }
 
 export const PatientsModal: React.FC<PatientsModalProps> = ({
@@ -43,15 +43,13 @@ export const PatientsModal: React.FC<PatientsModalProps> = ({
     e.preventDefault();
     if (!name.trim()) return;
 
-    const newPatient: Patient = {
-      id: 'p_' + Date.now(),
+    const newPatient: NovoPaciente = {
       name: name.trim(),
       age: Number(age) || 30,
       sex,
       phone: phone.trim() || undefined,
       email: email.trim() || undefined,
       objective: objective.trim() || 'Avaliação Nutricional',
-      createdAt: hojeLocalISO(),
     };
 
     // onAddPatient já seleciona o paciente novo e abre o prontuário na Anamnese.
