@@ -1,15 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { Appointment, AppointmentStatus, Consultation, Patient, ProfessionalProfile } from '../types';
+import { Appointment, AppointmentStatus, ProfessionalProfile } from '../types';
 import { ClinicalStage } from './PatientRecordView';
 import {
-  Users,
   Calendar as CalendarIcon,
   Clock,
   Activity,
   Plus,
   ArrowRight,
   CheckCircle2,
-  FileText,
   Video,
   Building2,
   ChevronLeft,
@@ -22,28 +20,22 @@ import {
 } from 'lucide-react';
 
 interface OverviewDashboardProps {
-  patients: Patient[];
-  consultations: Consultation[];
   appointments: Appointment[];
   profile: ProfessionalProfile;
   onOpenNewAppointment: (date?: string, patientId?: string) => void;
   onEditAppointment: (appointment: Appointment) => void;
   onSelectPatientAndOpenTab: (patientId: string, tab: ClinicalStage) => void;
-  onNavigateToPatients: () => void;
   onUpdateAppointmentStatus: (id: string, status: AppointmentStatus) => void;
 }
 
 export type CalendarPeriodFilter = 'dia' | 'semana' | 'mes';
 
 export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
-  patients,
-  consultations,
   appointments,
   profile,
   onOpenNewAppointment,
   onEditAppointment,
   onSelectPatientAndOpenTab,
-  onNavigateToPatients,
   onUpdateAppointmentStatus,
 }) => {
   const todayIso = new Date().toISOString().split('T')[0];
@@ -378,18 +370,11 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Olá, {profile.name}!
           </h1>
-          <p className="text-emerald-100 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-            Este é o panorama geral e a agenda integrada do seu consultório. Você possui{' '}
-            <strong className="text-white font-bold">{todayAppointments.length} atendimentos</strong>{' '}
-            agendados para hoje e um total de{' '}
-            <strong className="text-white font-bold">{patients.length} pacientes</strong> sob
-            acompanhamento clínico.
-          </p>
         </div>
       </div>
 
       {/* 2. KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Metric 1: Today's Appointments */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div>
@@ -420,41 +405,6 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           </div>
           <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 text-blue-700 flex items-center justify-center">
             <Clock className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* Metric 3: Active Patients */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-500 block">Pacientes Cadastrados</span>
-            <span className="text-2xl font-black text-slate-900 mt-1 block">
-              {patients.length}
-            </span>
-            <button
-              onClick={onNavigateToPatients}
-              className="text-[11px] text-emerald-600 hover:text-emerald-800 font-semibold underline mt-0.5 block"
-            >
-              Ver diretório
-            </button>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 text-teal-700 flex items-center justify-center">
-            <Users className="w-6 h-6" />
-          </div>
-        </div>
-
-        {/* Metric 4: Total Consultations Recorded */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="text-xs font-semibold text-slate-500 block">Prontuários Gravados</span>
-            <span className="text-2xl font-black text-slate-900 mt-1 block">
-              {consultations.length}
-            </span>
-            <span className="text-[11px] text-slate-500 font-medium mt-0.5 block">
-              Consultas no histórico
-            </span>
-          </div>
-          <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 text-purple-700 flex items-center justify-center">
-            <FileText className="w-6 h-6" />
           </div>
         </div>
       </div>

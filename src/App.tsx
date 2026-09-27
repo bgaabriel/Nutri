@@ -34,6 +34,7 @@ import { PatientRecordView, ClinicalStage } from './components/PatientRecordView
 import { AppointmentModal } from './components/AppointmentModal';
 import { PatientsModal, PatientsModalMode } from './components/PatientsModal';
 import { ProfileModal } from './components/ProfileModal';
+import { ConsultorioReportView } from './components/ConsultorioReportView';
 import {
   Users,
   LayoutDashboard,
@@ -63,6 +64,7 @@ export default function App() {
   // Modals state
   const [patientsModalMode, setPatientsModalMode] = useState<PatientsModalMode | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isConsultorioReportOpen, setIsConsultorioReportOpen] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [appointmentDefaultDate, setAppointmentDefaultDate] = useState<string | undefined>(undefined);
@@ -603,8 +605,6 @@ export default function App() {
           {/* VIEW 1: PANORAMA GERAL & CALENDÁRIO INTEGRADO */}
           {(activeMainTab === 'panorama' || activeMainTab === 'agenda') && (
             <OverviewDashboard
-              patients={patients}
-              consultations={consultations}
               appointments={appointments}
               profile={profile}
               onOpenNewAppointment={handleOpenNewAppointment}
@@ -613,7 +613,6 @@ export default function App() {
                 handleSelectPatient(pId, tab);
                 setActiveMainTab('prontuario');
               }}
-              onNavigateToPatients={() => setActiveMainTab('pacientes')}
               onUpdateAppointmentStatus={handleUpdateAppointmentStatus}
             />
           )}
@@ -691,7 +690,19 @@ export default function App() {
         onSave={handleSaveProfile}
         onExportBackup={handleExportBackup}
         onImportBackup={() => fileInputRef.current?.click()}
+        onOpenConsultorioReport={() => {
+          setIsProfileModalOpen(false);
+          setIsConsultorioReportOpen(true);
+        }}
       />
+
+      {isConsultorioReportOpen && (
+        <ConsultorioReportView
+          patients={patients}
+          consultations={consultations}
+          onClose={() => setIsConsultorioReportOpen(false)}
+        />
+      )}
     </div>
   );
 }
