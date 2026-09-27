@@ -336,6 +336,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
             <MealPlannerTab
               patient={patient}
               consultation={consultation}
+              calculatedMetrics={calculatedMetrics}
               onUpdateMealPlan={onUpdateMealPlan}
             />
             {/* Step navigation prompts */}
@@ -393,6 +394,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               patient={patient}
               consultation={consultation}
               profile={profile}
+              calculatedMetrics={calculatedMetrics}
               onBackToApp={() => onChangeStage('cardapio')}
             />
           </div>
@@ -405,6 +407,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               currentConsultation={consultation}
               consultationHistory={consultationHistory}
               profile={profile}
+              calculatedMetrics={calculatedMetrics}
               onBackToApp={() => onChangeStage('comparativo')}
             />
           </div>
@@ -416,6 +419,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               patient={patient}
               consultation={consultation}
               profile={profile}
+              calculatedMetrics={calculatedMetrics}
               onBackToApp={() => onChangeStage('cardapio')}
             />
           </div>

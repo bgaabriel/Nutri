@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Patient, Consultation, MealPlan, Meal, TacoFoodItem } from '../types';
+import { Patient, Consultation, MealPlan, Meal, TacoFoodItem, CalculatedMetrics } from '../types';
 import { TACO_FOODS, TACO_CATEGORIES, calculateFoodItemNutrients, sumMealNutrients, createDefaultMealPlan } from '../data/tacoFoods';
 import {
   Utensils,
@@ -18,16 +18,19 @@ import {
 interface MealPlannerTabProps {
   patient: Patient;
   consultation: Consultation;
+  /** Métricas calculadas ao vivo a partir da prescrição da aba 3 (fonte das metas). */
+  calculatedMetrics: CalculatedMetrics;
   onUpdateMealPlan: (plan: MealPlan) => void;
 }
 
 export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
   patient,
   consultation,
+  calculatedMetrics,
   onUpdateMealPlan,
 }) => {
-  // Inicializa com o plano da consulta ou gera um padrão baseado nas metas
-  const targetKcal = consultation.calculated?.vet || 2000;
+  // Metas vêm da prescrição atual (aba 3), não do registro salvo da consulta
+  const targetKcal = Math.round(calculatedMetrics.vet);
   const currentWeight = consultation.anthropometry.weight || 70;
 
   const activePlan = useMemo<MealPlan>(() => {
@@ -68,9 +71,9 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
   }, [activePlan]);
 
   // Metas do paciente
-  const targetProtG = consultation.calculated?.proteinGrams || Math.round(currentWeight * 2.0);
-  const targetCarbG = consultation.calculated?.carbGrams || Math.round(currentWeight * 3.0);
-  const targetFatG = consultation.calculated?.fatGrams || Math.round(currentWeight * 0.8);
+  const targetProtG = calculatedMetrics.proteinGrams;
+  const targetCarbG = calculatedMetrics.carbGrams;
+  const targetFatG = calculatedMetrics.fatGrams;
 
   // Handlers para manipulação das refeições
   const handleAddMeal = () => {

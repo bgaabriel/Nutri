@@ -1,12 +1,12 @@
 import React from 'react';
-import { Consultation, Patient, ProfessionalProfile } from '../types';
-import { calculateAllMetrics } from '../calculations';
+import { CalculatedMetrics, Consultation, Patient, ProfessionalProfile } from '../types';
 import { ArrowLeft } from 'lucide-react';
 
 interface PrintReportViewProps {
   patient: Patient;
   consultation: Consultation;
   profile: ProfessionalProfile;
+  calculatedMetrics: CalculatedMetrics;
   onBackToApp: () => void;
 }
 
@@ -14,16 +14,10 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
   patient,
   consultation,
   profile,
+  calculatedMetrics,
   onBackToApp,
 }) => {
-  const calc =
-    consultation.calculated ||
-    calculateAllMetrics(
-      patient.age,
-      patient.sex,
-      consultation.anthropometry,
-      consultation.prescription
-    );
+  const calc = calculatedMetrics;
 
   return (
     <div className="max-w-4xl mx-auto py-6 px-4">

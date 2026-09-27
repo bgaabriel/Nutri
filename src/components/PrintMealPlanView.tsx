@@ -1,5 +1,5 @@
 import React from 'react';
-import { Patient, Consultation, ProfessionalProfile, MealPlan } from '../types';
+import { Patient, Consultation, ProfessionalProfile, MealPlan, CalculatedMetrics } from '../types';
 import { sumMealNutrients, createDefaultMealPlan } from '../data/tacoFoods';
 import { ArrowLeft, Droplet, Flame } from 'lucide-react';
 
@@ -7,6 +7,7 @@ interface PrintMealPlanViewProps {
   patient: Patient;
   consultation: Consultation;
   profile: ProfessionalProfile;
+  calculatedMetrics: CalculatedMetrics;
   onBackToApp: () => void;
 }
 
@@ -14,21 +15,18 @@ export const PrintMealPlanView: React.FC<PrintMealPlanViewProps> = ({
   patient,
   consultation,
   profile,
+  calculatedMetrics,
   onBackToApp,
 }) => {
+  const targetKcal = Math.round(calculatedMetrics.vet);
   const plan: MealPlan =
     consultation.mealPlan && consultation.mealPlan.refeicoes.length > 0
       ? consultation.mealPlan
-      : createDefaultMealPlan(
-          patient.id,
-          consultation.calculated?.vet || 2000,
-          consultation.anthropometry.weight || 70
-        );
+      : createDefaultMealPlan(patient.id, targetKcal, consultation.anthropometry.weight || 70);
 
   const allItems = plan.refeicoes.flatMap((m) => m.alimentos);
   const totals = sumMealNutrients(allItems);
 
-  const targetKcal = consultation.calculated?.vet || Math.round(totals.kcal);
   const weight = consultation.anthropometry.weight || 70;
   const waterLiters = (plan.metaAguaMl / 1000).toFixed(1);
 

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { Consultation, Patient, ProfessionalProfile } from '../types';
+import { CalculatedMetrics, Consultation, Patient, ProfessionalProfile } from '../types';
+import { parseDataConsulta } from '../utils/date';
 import { calculateAllMetrics } from '../calculations';
 import {
   Printer,
@@ -20,6 +21,8 @@ interface PrintEvolutionReportViewProps {
   currentConsultation: Consultation;
   consultationHistory: Consultation[];
   profile: ProfessionalProfile;
+  /** Métricas ao vivo da consulta em edição (a consulta atual ainda não tem `calculated`). */
+  calculatedMetrics: CalculatedMetrics;
   onBackToApp: () => void;
 }
 
@@ -28,6 +31,7 @@ export const PrintEvolutionReportView: React.FC<PrintEvolutionReportViewProps> =
   currentConsultation,
   consultationHistory,
   profile,
+  calculatedMetrics,
   onBackToApp,
 }) => {
   const [copiedWhatsApp, setCopiedWhatsApp] = useState(false);
@@ -39,13 +43,16 @@ export const PrintEvolutionReportView: React.FC<PrintEvolutionReportViewProps> =
   const allSessions = useMemo(() => {
     const list: Consultation[] = [...consultationHistory];
 
-    // Add current session if not already in history
+    // Add current session if not already in history (com as métricas ao vivo)
     const alreadySaved = list.some((c) => c.id === currentConsultation.id);
     if (!alreadySaved) {
-      list.push(currentConsultation);
+      list.push({ ...currentConsultation, calculated: calculatedMetrics });
     }
 
-    // Sort chronologically (oldest to newest)
+    const tempo = (c: Consultation) => parseDataConsulta(c.date)?.getTime() ?? 0;
+
+    // Sort chronologically (oldest to newest); a ordenação é estável, então a
+    // consulta atual fica depois das salvas no mesmo dia
     return list
       .map((c) => ({
         ...c,
@@ -53,11 +60,8 @@ export const PrintEvolutionReportView: React.FC<PrintEvolutionReportViewProps> =
           c.calculated ||
           calculateAllMetrics(patient.age, patient.sex, c.anthropometry, c.prescription),
       }))
-      .sort((a, b) => {
-        // Compare dates if YYYY-MM-DD or parse
-        return a.date.localeCompare(b.date);
-      });
-  }, [patient, currentConsultation, consultationHistory]);
+      .sort((a, b) => tempo(a) - tempo(b));
+  }, [patient, currentConsultation, consultationHistory, calculatedMetrics]);
 
   const initialSession = allSessions.length > 0 ? allSessions[0] : null;
   const latestSession = allSessions.length > 0 ? allSessions[allSessions.length - 1] : null;

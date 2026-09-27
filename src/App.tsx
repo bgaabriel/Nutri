@@ -329,8 +329,10 @@ export default function App() {
   };
 
   const handleLoadConsultation = (session: Consultation) => {
+    // `calculated` é só o registro histórico; a edição recalcula ao vivo
+    const { calculated: _registroHistorico, ...dadosDaConsulta } = session;
     setCurrentConsultation({
-      ...session,
+      ...dadosDaConsulta,
       id: 'draft_' + Date.now(),
     });
     setClinicalStage('antropometria');
