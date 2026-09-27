@@ -1,0 +1,6 @@
+{
+  "name": "NutriPro Clínico",
+  "description": "Sistema profissional offline de nutrição com panorama geral, agenda & calendário clínico, prontuário, anamnese, antropometria, montagem de cardápios com alimentos da Tabela TACO, acompanhamento de evolução comparativa e impressão de relatórios e dietas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
