@@ -309,6 +309,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
             <MetabolismTab
               prescription={consultation.prescription}
               calculated={calculatedMetrics}
+              peso={consultation.anthropometry.weight}
               onUpdatePrescription={onUpdatePrescription}
             />
             {/* Step navigation prompts */}

@@ -1,19 +1,30 @@
 import React from 'react';
-import { BmrFormula, CalculatedMetrics, EnergyPrescription } from '../types';
+import { BmrFormula, CalculatedMetrics, EnergyPrescription, MacroMode } from '../types';
 import { Flame, PieChart } from 'lucide-react';
 import { ActivityFactorStepper } from './ActivityFactorStepper';
 
 interface MetabolismTabProps {
   prescription: EnergyPrescription;
   calculated: CalculatedMetrics;
+  /** Peso atual (kg), para converter entre g/kg e % do VET */
+  peso: number;
   onUpdatePrescription: (updated: Partial<EnergyPrescription>) => void;
 }
 
 export const MetabolismTab: React.FC<MetabolismTabProps> = ({
   prescription,
   calculated,
+  peso,
   onUpdatePrescription,
 }) => {
+  // Aviso de soma só quando os três macros estão em %
+  const somaPercentuais =
+    prescription.proteinMode === 'percent' &&
+    prescription.carbMode === 'percent' &&
+    prescription.fatMode === 'percent'
+      ? (prescription.proteinPercent || 0) + (prescription.carbPercent || 0) + (prescription.fatPercent || 0)
+      : null;
+
   const totalMacroKcal = calculated.proteinKcal + calculated.carbKcal + calculated.fatKcal;
   const pProt = totalMacroKcal > 0 ? (calculated.proteinKcal / totalMacroKcal) * 100 : 0;
   const pCarb = totalMacroKcal > 0 ? (calculated.carbKcal / totalMacroKcal) * 100 : 0;
@@ -321,103 +332,78 @@ export const MetabolismTab: React.FC<MetabolismTabProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-          {/* Proteínas */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-bold text-emerald-800">Proteínas</span>
-              <span className="text-xs font-mono bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
-                4 kcal/g
-              </span>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.5"
-                  max="4.0"
-                  value={prescription.proteinGKg}
-                  onChange={(e) =>
-                    onUpdatePrescription({ proteinGKg: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-24 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-900 font-mono font-bold text-sm focus:border-emerald-600 outline-none"
-                />
-                <span className="text-xs text-slate-600 font-medium">g / kg peso</span>
-              </div>
-              <div className="pt-2 border-t border-slate-200 text-xs flex justify-between">
-                <span className="text-slate-500">Total:</span>
-                <span className="font-bold text-slate-900">
-                  {calculated.proteinGrams}g ({calculated.proteinKcal} kcal)
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Carboidratos */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-bold text-blue-800">Carboidratos</span>
-              <span className="text-xs font-mono bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">
-                4 kcal/g
-              </span>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.5"
-                  max="10.0"
-                  value={prescription.carbGKg}
-                  onChange={(e) =>
-                    onUpdatePrescription({ carbGKg: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-24 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-900 font-mono font-bold text-sm focus:border-emerald-600 outline-none"
-                />
-                <span className="text-xs text-slate-600 font-medium">g / kg peso</span>
-              </div>
-              <div className="pt-2 border-t border-slate-200 text-xs flex justify-between">
-                <span className="text-slate-500">Total:</span>
-                <span className="font-bold text-slate-900">
-                  {calculated.carbGrams}g ({calculated.carbKcal} kcal)
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Gorduras */}
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-bold text-amber-800">Lipídios / Gorduras</span>
-              <span className="text-xs font-mono bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">
-                9 kcal/g
-              </span>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  step="0.05"
-                  min="0.3"
-                  max="2.5"
-                  value={prescription.fatGKg}
-                  onChange={(e) =>
-                    onUpdatePrescription({ fatGKg: parseFloat(e.target.value) || 0 })
-                  }
-                  className="w-24 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-900 font-mono font-bold text-sm focus:border-emerald-600 outline-none"
-                />
-                <span className="text-xs text-slate-600 font-medium">g / kg peso</span>
-              </div>
-              <div className="pt-2 border-t border-slate-200 text-xs flex justify-between">
-                <span className="text-slate-500">Total:</span>
-                <span className="font-bold text-slate-900">
-                  {calculated.fatGrams}g ({calculated.fatKcal} kcal)
-                </span>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-4">
+          <MacroCard
+            titulo="Proteínas"
+            corTitulo="text-emerald-800"
+            corEtiqueta="bg-emerald-100 text-emerald-800"
+            kcalPorGrama={4}
+            modo={prescription.proteinMode ?? 'gkg'}
+            gKg={prescription.proteinGKg}
+            percentual={prescription.proteinPercent}
+            passoGKg={0.1}
+            gramas={calculated.proteinGrams}
+            kcal={calculated.proteinKcal}
+            peso={peso}
+            vet={calculated.vet}
+            onChange={(v) =>
+              onUpdatePrescription({
+                ...(v.modo !== undefined && { proteinMode: v.modo }),
+                ...(v.gKg !== undefined && { proteinGKg: v.gKg }),
+                ...(v.percentual !== undefined && { proteinPercent: v.percentual }),
+              })
+            }
+          />
+          <MacroCard
+            titulo="Carboidratos"
+            corTitulo="text-blue-800"
+            corEtiqueta="bg-blue-100 text-blue-800"
+            kcalPorGrama={4}
+            modo={prescription.carbMode ?? 'gkg'}
+            gKg={prescription.carbGKg}
+            percentual={prescription.carbPercent}
+            passoGKg={0.1}
+            gramas={calculated.carbGrams}
+            kcal={calculated.carbKcal}
+            peso={peso}
+            vet={calculated.vet}
+            dica="Deixe em 0 para completar o VET"
+            onChange={(v) =>
+              onUpdatePrescription({
+                ...(v.modo !== undefined && { carbMode: v.modo }),
+                ...(v.gKg !== undefined && { carbGKg: v.gKg }),
+                ...(v.percentual !== undefined && { carbPercent: v.percentual }),
+              })
+            }
+          />
+          <MacroCard
+            titulo="Lipídios / Gorduras"
+            corTitulo="text-amber-800"
+            corEtiqueta="bg-amber-100 text-amber-800"
+            kcalPorGrama={9}
+            modo={prescription.fatMode ?? 'gkg'}
+            gKg={prescription.fatGKg}
+            percentual={prescription.fatPercent}
+            passoGKg={0.05}
+            gramas={calculated.fatGrams}
+            kcal={calculated.fatKcal}
+            peso={peso}
+            vet={calculated.vet}
+            onChange={(v) =>
+              onUpdatePrescription({
+                ...(v.modo !== undefined && { fatMode: v.modo }),
+                ...(v.gKg !== undefined && { fatGKg: v.gKg }),
+                ...(v.percentual !== undefined && { fatPercent: v.percentual }),
+              })
+            }
+          />
         </div>
+
+        {somaPercentuais !== null && Math.abs(somaPercentuais - 100) > 0.05 && (
+          <div className="mb-4 px-3 py-2 rounded-xl border border-amber-200 bg-amber-50 text-xs font-semibold text-amber-800">
+            A soma das porcentagens está em {somaPercentuais.toFixed(1).replace('.', ',').replace(',0', '')}%
+          </div>
+        )}
 
         {/* Proporção Calórica em Barra */}
         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -459,6 +445,127 @@ export const MetabolismTab: React.FC<MetabolismTabProps> = ({
               >
                 {Math.round(totalMacroKcal - calculated.vet)} kcal
               </strong>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface MacroCardProps {
+  titulo: string;
+  corTitulo: string;
+  corEtiqueta: string;
+  kcalPorGrama: number;
+  modo: MacroMode;
+  gKg: number;
+  percentual?: number;
+  passoGKg: number;
+  gramas: number;
+  kcal: number;
+  peso: number;
+  vet: number;
+  dica?: string;
+  onChange: (v: { modo?: MacroMode; gKg?: number; percentual?: number }) => void;
+}
+
+/** Card de um macronutriente, prescrito em g/kg de peso ou em % do VET. */
+const MacroCard: React.FC<MacroCardProps> = ({
+  titulo,
+  corTitulo,
+  corEtiqueta,
+  kcalPorGrama,
+  modo,
+  gKg,
+  percentual,
+  passoGKg,
+  gramas,
+  kcal,
+  peso,
+  vet,
+  dica,
+  onChange,
+}) => {
+  const gKgEquivalente = peso > 0 ? gramas / peso : 0;
+  const percentualEquivalente = vet > 0 ? (kcal / vet) * 100 : 0;
+
+  // Ao trocar de modo, o campo novo já vem com o valor equivalente ao atual
+  const trocarModo = (novo: MacroMode) => {
+    if (novo === modo) return;
+    if (novo === 'percent') {
+      onChange({ modo: novo, percentual: Math.round(percentualEquivalente * 10) / 10 });
+    } else {
+      onChange({ modo: novo, gKg: Math.round(gKgEquivalente * 100) / 100 });
+    }
+  };
+
+  const opcao = (m: MacroMode, rotulo: string) => (
+    <button
+      type="button"
+      onClick={() => trocarModo(m)}
+      aria-pressed={modo === m}
+      className={`flex-1 px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+        modo === m ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-500 hover:text-slate-800'
+      }`}
+    >
+      {rotulo}
+    </button>
+  );
+
+  return (
+    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+      <div className="flex justify-between items-center mb-2">
+        <span className={`text-sm font-bold ${corTitulo}`}>{titulo}</span>
+        <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${corEtiqueta}`}>
+          {kcalPorGrama} kcal/g
+        </span>
+      </div>
+      <div className="space-y-2">
+        <div className="flex bg-slate-200/70 p-0.5 rounded-lg w-32" role="group" aria-label={`Modo de ${titulo}`}>
+          {opcao('gkg', 'g/kg')}
+          {opcao('percent', '%')}
+        </div>
+        <div className="flex items-center gap-2">
+          {modo === 'gkg' ? (
+            <>
+              <input
+                type="number"
+                step={passoGKg}
+                min="0"
+                value={gKg}
+                onChange={(e) => onChange({ gKg: parseFloat(e.target.value) || 0 })}
+                className="w-24 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-900 font-mono font-bold text-sm focus:border-emerald-600 outline-none"
+              />
+              <span className="text-xs text-slate-600 font-medium">g / kg peso</span>
+            </>
+          ) : (
+            <>
+              <input
+                type="number"
+                step="1"
+                min="0"
+                max="100"
+                value={percentual ?? 0}
+                onChange={(e) => onChange({ percentual: parseFloat(e.target.value) || 0 })}
+                className="w-24 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-900 font-mono font-bold text-sm focus:border-emerald-600 outline-none"
+              />
+              <span className="text-xs text-slate-600 font-medium">% do VET</span>
+            </>
+          )}
+        </div>
+        {dica && <p className="text-[10px] text-slate-400">{dica}</p>}
+        <div className="pt-2 border-t border-slate-200 text-xs space-y-0.5">
+          <div className="flex justify-between">
+            <span className="text-slate-500">Total:</span>
+            <span className="font-bold text-slate-900">
+              {gramas}g ({kcal} kcal)
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-500">Equivale a:</span>
+            <span className="font-semibold text-slate-700">
+              {gKgEquivalente.toFixed(2)} g/kg • {percentualEquivalente.toFixed(1)}% do VET
             </span>
           </div>
         </div>

@@ -204,15 +204,25 @@ export function calculateAllMetrics(
   const get = chosenBmr * (prescription.activityFactor || 1);
   const vet = Math.max(800, get + (prescription.targetKcalAdjustment || 0));
 
-  // Macronutrientes
-  const proteinGrams = Math.round(prescription.proteinGKg * weight);
+  // Macronutrientes: cada um em g/kg de peso (padrão) ou em % do VET
+  const gramasDoMacro = (
+    modo: EnergyPrescription['proteinMode'],
+    gKg: number,
+    percentual: number | undefined,
+    kcalPorGrama: number
+  ) =>
+    modo === 'percent'
+      ? Math.round((vet * (percentual || 0)) / 100 / kcalPorGrama)
+      : Math.round((gKg || 0) * weight);
+
+  const proteinGrams = gramasDoMacro(prescription.proteinMode, prescription.proteinGKg, prescription.proteinPercent, 4);
   const proteinKcal = proteinGrams * 4;
 
-  const fatGrams = Math.round(prescription.fatGKg * weight);
+  const fatGrams = gramasDoMacro(prescription.fatMode, prescription.fatGKg, prescription.fatPercent, 9);
   const fatKcal = fatGrams * 9;
 
-  // Carboidratos podem ser calculados a partir de carbGKg ou ajustados para fechar o VET se desejado
-  let carbGrams = Math.round(prescription.carbGKg * weight);
+  // Carboidrato em 0 (em qualquer modo) completa o VET com o que sobra
+  let carbGrams = gramasDoMacro(prescription.carbMode, prescription.carbGKg, prescription.carbPercent, 4);
   if (carbGrams <= 0 && vet > proteinKcal + fatKcal) {
     carbGrams = Math.round((vet - proteinKcal - fatKcal) / 4);
   }

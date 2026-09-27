@@ -19,6 +19,9 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
   onBackToApp,
 }) => {
   const calc = calculatedMetrics;
+  const peso = consultation.anthropometry.weight;
+  const gKg = (gramas: number) => (peso > 0 ? (gramas / peso).toFixed(1) : '--');
+  const pctVet = (kcal: number) => (calc.vet > 0 ? Math.round((kcal / calc.vet) * 100) : 0);
   const variacaoHabitual = variacaoPesoHabitual(
     consultation.anthropometry.weight,
     consultation.anthropometry.usualWeight
@@ -318,7 +321,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
                 {calc.proteinGrams}g
               </span>
               <span className="text-[11px] text-slate-500">
-                {consultation.prescription.proteinGKg} g/kg ({calc.proteinKcal} kcal)
+                {gKg(calc.proteinGrams)} g/kg • {pctVet(calc.proteinKcal)}% do VET ({calc.proteinKcal} kcal)
               </span>
             </div>
 
@@ -328,7 +331,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
                 {calc.carbGrams}g
               </span>
               <span className="text-[11px] text-slate-500">
-                {consultation.prescription.carbGKg} g/kg ({calc.carbKcal} kcal)
+                {gKg(calc.carbGrams)} g/kg • {pctVet(calc.carbKcal)}% do VET ({calc.carbKcal} kcal)
               </span>
             </div>
 
@@ -338,7 +341,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
                 {calc.fatGrams}g
               </span>
               <span className="text-[11px] text-slate-500">
-                {consultation.prescription.fatGKg} g/kg ({calc.fatKcal} kcal)
+                {gKg(calc.fatGrams)} g/kg • {pctVet(calc.fatKcal)}% do VET ({calc.fatKcal} kcal)
               </span>
             </div>
           </div>

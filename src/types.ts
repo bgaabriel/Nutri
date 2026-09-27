@@ -81,7 +81,16 @@ export interface EnergyPrescription {
   proteinGKg: number;
   carbGKg: number;
   fatGKg: number;
+  // Modo de prescrição de cada macro: g/kg de peso (padrão) ou % do VET
+  proteinMode?: MacroMode;
+  carbMode?: MacroMode;
+  fatMode?: MacroMode;
+  proteinPercent?: number; // % do VET
+  carbPercent?: number;
+  fatPercent?: number;
 }
+
+export type MacroMode = 'gkg' | 'percent';
 
 export interface TacoFoodItem {
   id: string;
