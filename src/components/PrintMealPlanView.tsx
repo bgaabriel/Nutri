@@ -94,38 +94,49 @@ export const PrintMealPlanView: React.FC<PrintMealPlanViewProps> = ({
           </div>
         </div>
 
-        {/* 2. Banner de Metas Calóricas e Hídricas */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-xl mb-6 text-xs">
-          <div>
-            <span className="text-emerald-800 font-semibold block text-[11px] flex items-center gap-1">
-              <Flame className="w-3.5 h-3.5 text-amber-500" /> Meta Calórica
-            </span>
-            <span className="font-mono font-black text-slate-900 text-base">
-              {Math.round(totals.kcal)} kcal
-            </span>
+        {/* 2. Banner de Metas (prescrição) x Total do cardápio */}
+        <div className="p-3.5 bg-emerald-50/70 border border-emerald-200/80 rounded-xl mb-6 text-xs space-y-3">
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <span className="text-emerald-800 font-semibold block text-[11px] flex items-center gap-1">
+                <Flame className="w-3.5 h-3.5 text-amber-500" /> Meta (VET)
+              </span>
+              <span className="font-mono font-black text-slate-900 text-base">{targetKcal} kcal</span>
+            </div>
+
+            <div>
+              <span className="text-emerald-800 font-semibold block text-[11px]">Total do cardápio</span>
+              <span className="font-mono font-black text-slate-900 text-base">
+                {Math.round(totals.kcal)} kcal
+              </span>
+            </div>
+
+            <div>
+              <span className="text-emerald-800 font-semibold block text-[11px] flex items-center gap-1">
+                <Droplet className="w-3.5 h-3.5 text-blue-500" /> Meta de Água
+              </span>
+              <span className="font-mono font-bold text-blue-700 text-sm">{waterLiters} Litros/dia</span>
+            </div>
           </div>
 
-          <div>
-            <span className="text-emerald-800 font-semibold block text-[11px]">Proteínas</span>
-            <span className="font-mono font-bold text-slate-900 text-sm">
-              {totals.prot.toFixed(1)}g ({weight > 0 ? (totals.prot / weight).toFixed(1) : 0} g/kg)
-            </span>
-          </div>
-
-          <div>
-            <span className="text-emerald-800 font-semibold block text-[11px]">Carboidratos</span>
-            <span className="font-mono font-bold text-slate-900 text-sm">
-              {totals.carb.toFixed(1)}g ({weight > 0 ? (totals.carb / weight).toFixed(1) : 0} g/kg)
-            </span>
-          </div>
-
-          <div>
-            <span className="text-emerald-800 font-semibold block text-[11px] flex items-center gap-1">
-              <Droplet className="w-3.5 h-3.5 text-blue-500" /> Meta de Água
-            </span>
-            <span className="font-mono font-bold text-blue-700 text-sm">
-              {waterLiters} Litros/dia
-            </span>
+          <div className="grid grid-cols-3 gap-3 pt-3 border-t border-emerald-200/80">
+            {[
+              { rotulo: 'Proteínas', meta: calculatedMetrics.proteinGrams, total: totals.prot },
+              { rotulo: 'Carboidratos', meta: calculatedMetrics.carbGrams, total: totals.carb },
+              { rotulo: 'Gorduras', meta: calculatedMetrics.fatGrams, total: totals.lip },
+            ].map((m) => (
+              <div key={m.rotulo}>
+                <span className="text-emerald-800 font-semibold block text-[11px]">{m.rotulo}</span>
+                <span className="font-mono text-slate-900 block">
+                  Meta: <strong>{Math.round(m.meta)} g</strong>
+                  {weight > 0 && ` (${(m.meta / weight).toFixed(1)} g/kg)`}
+                </span>
+                <span className="font-mono text-slate-600 block">
+                  Cardápio: <strong>{Math.round(m.total)} g</strong>
+                  {weight > 0 && ` (${(m.total / weight).toFixed(1)} g/kg)`}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
