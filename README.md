@@ -1,20 +1,31 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# NutriPro Clínico
 
-# Run and deploy your AI Studio app
+Sistema web para nutricionistas: agenda, prontuário (anamnese, antropometria, gasto energético,
+cardápio com a Tabela TACO completa, evolução) e impressão de cardápio e relatórios.
 
-This contains everything you need to run your app locally.
+- Front: React 19 + TypeScript + Vite 6 + Tailwind CSS 4
+- Backend: Supabase (Auth + Postgres com RLS + Edge Function `login-identificador`)
 
-View your app in AI Studio: https://ai.studio/apps/92878891-7104-48c7-9767-57d01447adfe
+## Rodar localmente
 
-## Run Locally
+**Pré-requisito:** Node.js 20+.
 
-**Prerequisites:**  Node.js
+1. Instale as dependências: `npm install`
+2. Copie `.env.example` para `.env.local` e preencha `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`
+   (Supabase → Project Settings → API). Só a chave pública (anon) vai para o front;
+   **nunca** coloque a `service_role key` no `.env.local` nem em arquivo versionado.
+3. `npm run dev` → http://localhost:3000
 
+Como criar o projeto Supabase, aplicar as migrations e publicar a função: `supabase/LEIA-ME.md`.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Comandos
+
+```bash
+npm run dev                      # servidor de desenvolvimento
+npm run lint                     # tsc --noEmit
+npm run build                    # build de produção em dist/
+npm run test:impressao           # impressão (Playwright + pdfjs); ver docs/teste-impressao.mjs
+npm run test:supabase-simulado   # front completo com o Supabase simulado
+```
+
+Os dois testes precisam do app em `npx vite preview --port 4173` em outro terminal.
