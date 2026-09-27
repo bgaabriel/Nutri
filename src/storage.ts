@@ -181,7 +181,6 @@ export const initialConsultations: Consultation[] = [
     },
     prescription: {
       bmrFormula: 'mifflin',
-      activityFactorPreset: '1.375',
       activityFactor: 1.375,
       targetKcalAdjustment: -400,
       proteinGKg: 1.8,
@@ -244,7 +243,6 @@ export const initialConsultations: Consultation[] = [
     },
     prescription: {
       bmrFormula: 'mifflin',
-      activityFactorPreset: '1.55',
       activityFactor: 1.55,
       targetKcalAdjustment: -450,
       proteinGKg: 2.0,

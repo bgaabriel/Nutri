@@ -163,7 +163,6 @@ export default function App() {
       },
       prescription: {
         bmrFormula: 'mifflin',
-        activityFactorPreset: '1.55',
         activityFactor: 1.55,
         targetKcalAdjustment: -500,
         proteinGKg: 2.0,
@@ -244,7 +243,6 @@ export default function App() {
         },
         prescription: {
           bmrFormula: 'mifflin',
-          activityFactorPreset: '1.55',
           activityFactor: 1.55,
           targetKcalAdjustment: 0,
           proteinGKg: 2.0,

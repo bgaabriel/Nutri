@@ -74,7 +74,8 @@ export type BmrFormula =
 
 export interface EnergyPrescription {
   bmrFormula: BmrFormula;
-  activityFactorPreset: string;
+  /** Obsoleto: só existe em consultas antigas. O valor que vale é activityFactor. */
+  activityFactorPreset?: string;
   activityFactor: number;
   targetKcalAdjustment: number;
   proteinGKg: number;

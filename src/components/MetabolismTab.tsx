@@ -1,6 +1,7 @@
 import React from 'react';
 import { BmrFormula, CalculatedMetrics, EnergyPrescription } from '../types';
 import { Flame, PieChart } from 'lucide-react';
+import { ActivityFactorStepper } from './ActivityFactorStepper';
 
 interface MetabolismTabProps {
   prescription: EnergyPrescription;
@@ -13,18 +14,6 @@ export const MetabolismTab: React.FC<MetabolismTabProps> = ({
   calculated,
   onUpdatePrescription,
 }) => {
-  const handleFaPresetChange = (val: string) => {
-    if (val === 'manual') {
-      onUpdatePrescription({ activityFactorPreset: 'manual' });
-    } else {
-      const num = parseFloat(val) || 1.55;
-      onUpdatePrescription({
-        activityFactorPreset: val,
-        activityFactor: num,
-      });
-    }
-  };
-
   const totalMacroKcal = calculated.proteinKcal + calculated.carbKcal + calculated.fatKcal;
   const pProt = totalMacroKcal > 0 ? (calculated.proteinKcal / totalMacroKcal) * 100 : 0;
   const pCarb = totalMacroKcal > 0 ? (calculated.carbKcal / totalMacroKcal) * 100 : 0;
@@ -227,38 +216,14 @@ export const MetabolismTab: React.FC<MetabolismTabProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label htmlFor="fator-atividade" className="block text-xs font-semibold text-slate-700 mb-1">
               Fator de Atividade (FA)
             </label>
-            <div className="space-y-2">
-              <select
-                value={prescription.activityFactorPreset}
-                onChange={(e) => handleFaPresetChange(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none transition-all"
-              >
-                <option value="1.2">1.2 - Sedentário (pouco ou nenhum exercício)</option>
-                <option value="1.375">1.375 - Levemente Ativo (treino 1-3x/sem)</option>
-                <option value="1.55">1.55 - Moderadamente Ativo (treino 3-5x/sem)</option>
-                <option value="1.725">1.725 - Muito Ativo (treino diário intenso)</option>
-                <option value="1.9">1.9 - Extremamente Ativo (atletas 2x/dia)</option>
-                <option value="manual">Personalizado (Digitar valor exato)</option>
-              </select>
-
-              {prescription.activityFactorPreset === 'manual' && (
-                <input
-                  type="number"
-                  step="0.01"
-                  min="1"
-                  max="2.5"
-                  value={prescription.activityFactor}
-                  onChange={(e) =>
-                    onUpdatePrescription({ activityFactor: parseFloat(e.target.value) || 1 })
-                  }
-                  className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-slate-900 text-sm focus:border-emerald-600 outline-none"
-                  placeholder="Ex: 1.62"
-                />
-              )}
-            </div>
+            <ActivityFactorStepper
+              id="fator-atividade"
+              value={prescription.activityFactor || 1}
+              onChange={(activityFactor) => onUpdatePrescription({ activityFactor })}
+            />
           </div>
 
           <div>
