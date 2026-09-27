@@ -1,6 +1,6 @@
 import React from 'react';
 import { CalculatedMetrics, Consultation, Patient, ProfessionalProfile } from '../types';
-import { formatarVariacaoPercentual, variacaoPesoHabitual } from '../calculations';
+import { formatarVariacaoPercentual, NOMES_FORMULA_TMB, variacaoPesoHabitual } from '../calculations';
 import { ArrowLeft } from 'lucide-react';
 
 interface PrintReportViewProps {
@@ -297,6 +297,9 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
             <div>
               <span className="text-xs text-slate-600 block">Taxa Metabólica Basal (TMB):</span>
               <span className="text-sm font-bold text-slate-900">{Math.round(calc.chosenBmr)} kcal/dia</span>
+              <span className="text-[10px] text-slate-500 block">
+                Fórmula: {NOMES_FORMULA_TMB[consultation.prescription.bmrFormula] ?? 'Mifflin-St Jeor'}
+              </span>
             </div>
             <div>
               <span className="text-xs text-slate-600 block">Gasto Total Estimado (GET):</span>

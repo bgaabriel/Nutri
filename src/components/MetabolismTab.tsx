@@ -153,6 +153,51 @@ export const MetabolismTab: React.FC<MetabolismTabProps> = ({
                   </td>
                 </tr>
               )}
+
+              {(
+                [
+                  {
+                    id: 'tinsley_peso' as const,
+                    nome: 'Tinsley (Peso Corporal)',
+                    valor: calculated.bmrTinsleyPeso,
+                    base: null as string | null,
+                  },
+                  {
+                    id: 'tinsley_mlg' as const,
+                    nome: 'Tinsley (Massa Livre de Gordura)',
+                    valor: calculated.bmrTinsleyMlg,
+                    base: `Baseada em ${calculated.leanMassKg.toFixed(1)} kg de massa livre de gordura`,
+                  },
+                ]
+              )
+                .filter((f) => f.valor && f.valor > 0)
+                .map((f) => (
+                  <tr key={f.id} className={prescription.bmrFormula === f.id ? 'bg-emerald-50/50' : ''}>
+                    <td className="py-3 font-semibold text-slate-900 flex items-center gap-2">
+                      <span>{f.nome}</span>
+                      <span className="bg-violet-100 text-violet-800 text-[10px] px-2 py-0.5 rounded font-bold">
+                        Atletas / Hipertrofia
+                      </span>
+                    </td>
+                    <td className="py-3 font-mono font-bold text-violet-700">{Math.round(f.valor || 0)} kcal</td>
+                    <td className="py-3 text-xs text-slate-500">
+                      Praticantes de musculação e atletas de físico
+                      {f.base && <span className="block">{f.base}</span>}
+                    </td>
+                    <td className="py-3 text-right">
+                      <button
+                        onClick={() => onUpdatePrescription({ bmrFormula: f.id })}
+                        className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                          prescription.bmrFormula === f.id
+                            ? 'bg-emerald-600 text-white shadow-2xs'
+                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                        }`}
+                      >
+                        {prescription.bmrFormula === f.id ? 'Adotada ✓' : 'Adotar'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -172,6 +217,12 @@ export const MetabolismTab: React.FC<MetabolismTabProps> = ({
               <option value="harris">Harris-Benedict</option>
               <option value="fao">FAO / WHO / UNU</option>
               {calculated.bmrCunningham && <option value="cunningham">Cunningham (Massa Magra)</option>}
+              {calculated.bmrTinsleyPeso > 0 && (
+                <option value="tinsley_peso">Tinsley (Peso Corporal)</option>
+              )}
+              {calculated.bmrTinsleyMlg && (
+                <option value="tinsley_mlg">Tinsley (Massa Livre de Gordura)</option>
+              )}
             </select>
           </div>
 

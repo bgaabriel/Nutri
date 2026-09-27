@@ -64,7 +64,13 @@ export interface Anthropometry {
   fatProtocol: FatProtocol;
 }
 
-export type BmrFormula = 'mifflin' | 'harris' | 'fao' | 'cunningham';
+export type BmrFormula =
+  | 'mifflin'
+  | 'harris'
+  | 'fao'
+  | 'cunningham'
+  | 'tinsley_peso'
+  | 'tinsley_mlg';
 
 export interface EnergyPrescription {
   bmrFormula: BmrFormula;
@@ -159,6 +165,8 @@ export interface CalculatedMetrics {
   bmrHarris: number;
   bmrFao: number;
   bmrCunningham?: number;
+  bmrTinsleyPeso: number;
+  bmrTinsleyMlg?: number;
   chosenBmr: number;
   get: number;
   vet: number;

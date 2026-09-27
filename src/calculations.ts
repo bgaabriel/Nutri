@@ -1,4 +1,23 @@
-import { Anthropometry, CalculatedMetrics, EnergyPrescription, Sex } from './types';
+import { Anthropometry, BmrFormula, CalculatedMetrics, EnergyPrescription, Sex } from './types';
+
+/**
+ * Equações de Tinsley, Graybeal & Moore (2019), Appl Physiol Nutr Metab 44(4):397–406.
+ * Desenvolvidas em atletas de físico / praticantes de musculação.
+ *   TMB = 24,8 × peso (kg) + 10
+ *   TMB = 25,9 × massa livre de gordura (kg) + 284
+ */
+export const TINSLEY_PESO = { fator: 24.8, constante: 10 } as const;
+export const TINSLEY_MLG = { fator: 25.9, constante: 284 } as const;
+
+/** Nome de exibição de cada fórmula de TMB (telas e relatórios). */
+export const NOMES_FORMULA_TMB: Record<BmrFormula, string> = {
+  mifflin: 'Mifflin-St Jeor',
+  harris: 'Harris-Benedict',
+  fao: 'FAO / WHO / UNU',
+  cunningham: 'Cunningham (Massa Magra)',
+  tinsley_peso: 'Tinsley (Peso Corporal)',
+  tinsley_mlg: 'Tinsley (Massa Livre de Gordura)',
+};
 
 export function calculateAllMetrics(
   age: number,
@@ -167,11 +186,20 @@ export function calculateAllMetrics(
     bmrCunningham = 500 + 22 * leanMassKg;
   }
 
+  // Tinsley (atletas de físico / musculação)
+  const bmrTinsleyPeso = weight > 0 ? TINSLEY_PESO.fator * weight + TINSLEY_PESO.constante : 0;
+  let bmrTinsleyMlg: number | undefined = undefined;
+  if (leanMassKg > 0) {
+    bmrTinsleyMlg = TINSLEY_MLG.fator * leanMassKg + TINSLEY_MLG.constante;
+  }
+
   // Fórmula escolhida
   let chosenBmr = bmrMifflin;
   if (prescription.bmrFormula === 'harris') chosenBmr = bmrHarris;
   else if (prescription.bmrFormula === 'fao') chosenBmr = bmrFao;
   else if (prescription.bmrFormula === 'cunningham' && bmrCunningham) chosenBmr = bmrCunningham;
+  else if (prescription.bmrFormula === 'tinsley_peso' && bmrTinsleyPeso > 0) chosenBmr = bmrTinsleyPeso;
+  else if (prescription.bmrFormula === 'tinsley_mlg' && bmrTinsleyMlg) chosenBmr = bmrTinsleyMlg;
 
   const get = chosenBmr * (prescription.activityFactor || 1);
   const vet = Math.max(800, get + (prescription.targetKcalAdjustment || 0));
@@ -203,6 +231,8 @@ export function calculateAllMetrics(
     bmrHarris,
     bmrFao,
     bmrCunningham,
+    bmrTinsleyPeso,
+    bmrTinsleyMlg,
     chosenBmr,
     get,
     vet,
