@@ -1,6 +1,6 @@
 import React from 'react';
 import { Anamnesis, Patient, Sex } from '../types';
-import { User, Activity, HeartPulse } from 'lucide-react';
+import { User, Activity, HeartPulse, ClipboardList } from 'lucide-react';
 
 interface AnamnesisTabProps {
   patient: Patient;
@@ -122,6 +122,34 @@ export const AnamnesisTab: React.FC<AnamnesisTabProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
+            <label htmlFor="anamnese-profissao" className="block text-xs font-semibold text-slate-700 mb-1">
+              Profissão / Trabalho
+            </label>
+            <input
+              id="anamnese-profissao"
+              type="text"
+              value={anamnesis.occupation ?? ''}
+              onChange={(e) => onUpdateAnamnesis({ occupation: e.target.value })}
+              placeholder="Ex: Analista administrativo"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none transition-all"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="anamnese-rotina-trabalho" className="block text-xs font-semibold text-slate-700 mb-1">
+              Rotina de trabalho
+            </label>
+            <input
+              id="anamnese-rotina-trabalho"
+              type="text"
+              value={anamnesis.workRoutine ?? ''}
+              onChange={(e) => onUpdateAnamnesis({ workRoutine: e.target.value })}
+              placeholder="Ex: Escritório 8h–18h, sentado, almoça fora"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none transition-all"
+            />
+          </div>
+
+          <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Qualidade do Sono</label>
             <input
               type="text"
@@ -195,14 +223,39 @@ export const AnamnesisTab: React.FC<AnamnesisTabProps> = ({
         </div>
       </div>
 
-      {/* 3. Exames Laboratoriais */}
+      {/* 3. Recordatório Alimentar */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
+        <div className="flex items-center gap-2.5 mb-4">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
+            <ClipboardList className="w-4 h-4" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold text-slate-900">3. Recordatório Alimentar</h2>
+            <p className="text-xs text-slate-500">O que o paciente come, refeição por refeição, com horários</p>
+          </div>
+        </div>
+
+        <label htmlFor="anamnese-recordatorio" className="block text-xs font-semibold text-slate-700 mb-1">
+          Descrição do recordatório (24h ou dia habitual)
+        </label>
+        <textarea
+          id="anamnese-recordatorio"
+          rows={10}
+          value={anamnesis.foodRecall ?? ''}
+          onChange={(e) => onUpdateAnamnesis({ foodRecall: e.target.value })}
+          placeholder={'07h — Café da manhã: 1 pão francês com manteiga, café com açúcar…\n10h — Lanche: 1 banana\n12h30 — Almoço: arroz, feijão, bife acebolado, salada de alface e tomate\n16h — Lanche: biscoito recheado e refrigerante\n20h — Jantar: …'}
+          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none resize-y min-h-[15rem] transition-all"
+        />
+      </div>
+
+      {/* 4. Exames Laboratoriais */}
       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
         <div className="flex items-center gap-2.5 mb-4">
           <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700">
             <HeartPulse className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900">3. Exames Laboratoriais</h2>
+            <h2 className="text-base font-bold text-slate-900">4. Exames Laboratoriais</h2>
             <p className="text-xs text-slate-500">Parâmetros bioquímicos e marcadores metabólicos</p>
           </div>
         </div>

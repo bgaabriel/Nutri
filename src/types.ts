@@ -20,6 +20,9 @@ export interface LabExams {
 }
 
 export interface Anamnesis {
+  occupation?: string; // profissão / trabalho
+  workRoutine?: string; // turno, carga horária, sentado/em pé, se come fora
+  foodRecall?: string; // recordatório alimentar (24h ou dia habitual), texto livre
   sleepHabit: string;
   waterIntakeLiters: string;
   bowelHabit: string;

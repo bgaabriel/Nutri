@@ -119,6 +119,9 @@ export default function App() {
       date: todayStr,
       title: `Consulta Inicial (${todayStr})`,
       anamnesis: {
+        occupation: 'Analista administrativo',
+        workRoutine: 'Escritório 8h–18h, sentado, almoça fora',
+        foodRecall: '',
         sleepHabit: '7 horas, sono agitado',
         waterIntakeLiters: '1.5 Litros',
         bowelHabit: 'Irregular (a cada 2 dias)',
@@ -195,6 +198,9 @@ export default function App() {
         date: todayStr,
         title: `Consulta Inicial (${todayStr})`,
         anamnesis: {
+          occupation: '',
+          workRoutine: '',
+          foodRecall: '',
           sleepHabit: '',
           waterIntakeLiters: '2.0 Litros',
           bowelHabit: 'Diário',

@@ -237,6 +237,36 @@ Profissional: *${profile.name}* (CRN: ${profile.crn})`;
               </span>
             </div>
           </div>
+
+          {latestSession &&
+            (latestSession.anamnesis.occupation ||
+              latestSession.anamnesis.workRoutine ||
+              latestSession.anamnesis.foodRecall) && (
+              <div className="mt-4 pt-4 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <span className="text-slate-400 block uppercase font-bold text-[10px]">Profissão / Trabalho</span>
+                  <span className="text-slate-800 block mt-0.5">
+                    {latestSession.anamnesis.occupation || 'Não informado'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block uppercase font-bold text-[10px]">Rotina de trabalho</span>
+                  <span className="text-slate-800 block mt-0.5">
+                    {latestSession.anamnesis.workRoutine || 'Não informado'}
+                  </span>
+                </div>
+                {latestSession.anamnesis.foodRecall && (
+                  <div className="sm:col-span-2">
+                    <span className="text-slate-400 block uppercase font-bold text-[10px]">
+                      Recordatório alimentar (consulta mais recente)
+                    </span>
+                    <p className="text-slate-800 mt-0.5 whitespace-pre-wrap leading-relaxed">
+                      {latestSession.anamnesis.foodRecall}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
         </div>
 
         {/* 2. Destaques da Evolução Global (Primeira vs. Última Consulta) */}

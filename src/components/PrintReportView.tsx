@@ -91,6 +91,14 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
           </h2>
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div>
+              <span className="font-semibold text-slate-600">Profissão / Trabalho:</span>{' '}
+              <span className="text-slate-900">{consultation.anamnesis.occupation || 'Não informado'}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-slate-600">Rotina de trabalho:</span>{' '}
+              <span className="text-slate-900">{consultation.anamnesis.workRoutine || 'Não informado'}</span>
+            </div>
+            <div>
               <span className="font-semibold text-slate-600">Sono:</span>{' '}
               <span className="text-slate-900">{consultation.anamnesis.sleepHabit || 'Não informado'}</span>
             </div>
@@ -114,6 +122,14 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
               <div className="col-span-2">
                 <span className="font-semibold text-slate-600">Observações Clínicas:</span>{' '}
                 <span className="text-slate-900">{consultation.anamnesis.clinicalNotes}</span>
+              </div>
+            )}
+            {consultation.anamnesis.foodRecall && (
+              <div className="col-span-2">
+                <span className="font-semibold text-slate-600 block mb-0.5">Recordatório Alimentar:</span>
+                <p className="text-slate-900 whitespace-pre-wrap leading-relaxed">
+                  {consultation.anamnesis.foodRecall}
+                </p>
               </div>
             )}
           </div>

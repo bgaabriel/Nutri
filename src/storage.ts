@@ -133,6 +133,13 @@ export const initialConsultations: Consultation[] = [
     date: '10/01/2026',
     title: 'Consulta Inicial (Avaliação Global)',
     anamnesis: {
+      occupation: 'Gerente comercial',
+      workRoutine: 'Escritório 9h–19h, sentado, almoça fora quase todos os dias',
+      foodRecall:
+        '07h — Café da manhã: 2 pães franceses com manteiga, café com açúcar\n' +
+        '12h30 — Almoço (restaurante): arroz, feijão, bife à parmegiana, refrigerante\n' +
+        '16h — Lanche: salgado assado e café\n' +
+        '21h — Jantar: pizza ou lanche (3x/semana)',
       sleepHabit: '6 a 7 horas, sono agitado, acorda cansado',
       waterIntakeLiters: '1.2 Litros/dia',
       bowelHabit: 'Constipado (a cada 2-3 dias)',
@@ -186,6 +193,14 @@ export const initialConsultations: Consultation[] = [
     date: '10/04/2026',
     title: 'Retorno 90 dias (Evolução 1)',
     anamnesis: {
+      occupation: 'Gerente comercial',
+      workRoutine: 'Escritório 9h–18h, sentado, leva marmita 3x/semana',
+      foodRecall:
+        '07h — Café da manhã: 2 ovos mexidos, 1 pão integral, café sem açúcar\n' +
+        '10h — Lanche: 1 fruta + castanhas\n' +
+        '12h30 — Almoço (marmita): arroz, feijão, frango grelhado, salada\n' +
+        '16h — Lanche: iogurte natural com aveia\n' +
+        '20h — Jantar: omelete com legumes',
       sleepHabit: '7 horas regulares, melhora na disposição matinal',
       waterIntakeLiters: '2.0 Litros/dia',
       bowelHabit: 'Regularizado (diário)',
