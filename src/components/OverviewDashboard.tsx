@@ -9,7 +9,6 @@ import {
   Plus,
   ArrowRight,
   CheckCircle2,
-  AlertCircle,
   FileText,
   Video,
   Building2,
@@ -20,8 +19,6 @@ import {
   CalendarRange,
   FileEdit,
   User,
-  Sun,
-  Layers,
 } from 'lucide-react';
 
 interface OverviewDashboardProps {

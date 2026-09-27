@@ -1,6 +1,6 @@
 import React from 'react';
 import { Anamnesis, Patient, Sex } from '../types';
-import { User, Activity, FileText, HeartPulse, Sparkles } from 'lucide-react';
+import { User, Activity, HeartPulse } from 'lucide-react';
 
 interface AnamnesisTabProps {
   patient: Patient;

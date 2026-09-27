@@ -1,7 +1,7 @@
 import React from 'react';
 import { Consultation, Patient, ProfessionalProfile } from '../types';
 import { calculateAllMetrics } from '../calculations';
-import { Printer, ArrowLeft, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 interface PrintReportViewProps {
   patient: Patient;
@@ -25,10 +25,6 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
       consultation.prescription
     );
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
     <div className="max-w-4xl mx-auto py-6 px-4">
       {/* Action Bar (Hidden on print) */}
@@ -45,13 +41,6 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
           <span className="text-xs text-slate-500 hidden sm:inline">
             Dica: Na janela de impressão, selecione &quot;Salvar como PDF&quot;.
           </span>
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-xs transition-all"
-          >
-            <Printer className="w-4 h-4" />
-            <span>Imprimir / Gerar PDF</span>
-          </button>
         </div>
       </div>
 

@@ -28,11 +28,8 @@ import {
   Save,
   Users,
   ChevronRight,
-  User,
-  Calendar,
   Sparkles,
   Phone,
-  CheckCircle2,
 } from 'lucide-react';
 
 export type ClinicalStage =
@@ -160,15 +157,6 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               <span>Imprimir Relatório</span>
             </button>
 
-            {/* Botão de PDF Consolidado de Toda a Evolução */}
-            <button
-              onClick={() => onChangeStage('evolucaoPdf')}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold border border-emerald-400 bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-all cursor-pointer"
-              title="Gerar PDF consolidado de toda a evolução e histórico clínico do paciente"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-200" />
-              <span>PDF de Toda a Evolução</span>
-            </button>
           </div>
         </div>
 
@@ -349,12 +337,6 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               patient={patient}
               consultation={consultation}
               onUpdateMealPlan={onUpdateMealPlan}
-              onOpenPrintMealPlan={() => {
-                onChangeStage('imprimirCardapio');
-                setTimeout(() => {
-                  window.print();
-                }, 200);
-              }}
             />
             {/* Step navigation prompts */}
             <div className="flex items-center justify-between pt-2">
@@ -383,9 +365,7 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
               currentConsultation={consultation}
               consultationHistory={consultationHistory}
               onLoadConsultation={onLoadConsultation}
-              onSaveCurrentAsNewConsultation={onSaveConsultation}
               onDeleteConsultation={onDeleteConsultation}
-              onGenerateEvolutionPdf={() => onChangeStage('evolucaoPdf')}
             />
             {/* Step navigation prompts */}
             <div className="flex items-center justify-between pt-2">
@@ -396,22 +376,13 @@ export const PatientRecordView: React.FC<PatientRecordViewProps> = ({
                 <ArrowLeft className="w-4 h-4" />
                 <span>Voltar para 4. Montagem de Cardápio</span>
               </button>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onChangeStage('evolucaoPdf')}
-                  className="flex items-center gap-2 px-4 py-2.5 border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold transition-all cursor-pointer"
-                >
-                  <Sparkles className="w-4 h-4 text-emerald-600" />
-                  <span>Ver PDF da Evolução</span>
-                </button>
-                <button
-                  onClick={() => onChangeStage('relatorio')}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
-                >
-                  <span>Avançar para 6. Relatório do Paciente</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                onClick={() => onChangeStage('relatorio')}
+                className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all cursor-pointer"
+              >
+                <span>Avançar para 6. Relatório do Paciente</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}

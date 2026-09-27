@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Appointment, AppointmentModality, AppointmentStatus, AppointmentType, Patient } from '../types';
-import { X, Calendar, Clock, User, CheckCircle2, AlertCircle, Trash2, Video, Building2 } from 'lucide-react';
+import { X, Calendar, Clock, User, CheckCircle2, Trash2, Video, Building2 } from 'lucide-react';
 
 interface AppointmentModalProps {
   isOpen: boolean;

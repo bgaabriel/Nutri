@@ -1,7 +1,7 @@
 import React from 'react';
 import { Patient, Consultation, ProfessionalProfile, MealPlan } from '../types';
 import { sumMealNutrients, createDefaultMealPlan } from '../data/tacoFoods';
-import { Printer, ArrowLeft, Droplet, Flame, CheckCircle2, ShieldCheck, Heart } from 'lucide-react';
+import { ArrowLeft, Droplet, Flame } from 'lucide-react';
 
 interface PrintMealPlanViewProps {
   patient: Patient;
@@ -32,10 +32,6 @@ export const PrintMealPlanView: React.FC<PrintMealPlanViewProps> = ({
   const weight = consultation.anthropometry.weight || 70;
   const waterLiters = (plan.metaAguaMl / 1000).toFixed(1);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
     <div className="max-w-4xl mx-auto py-6 px-4">
       {/* Barra de Ações (Oculta na impressão) */}
@@ -52,13 +48,6 @@ export const PrintMealPlanView: React.FC<PrintMealPlanViewProps> = ({
           <span className="text-xs text-slate-500 hidden sm:inline">
             Dica: No diálogo de impressão, escolha &quot;Salvar como PDF&quot;.
           </span>
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-xs transition-all"
-          >
-            <Printer className="w-4 h-4" />
-            <span>Imprimir / Gerar PDF</span>
-          </button>
         </div>
       </div>
 

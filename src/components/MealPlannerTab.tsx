@@ -1,36 +1,30 @@
 import React, { useState, useMemo } from 'react';
-import { Patient, Consultation, MealPlan, Meal, MealFoodItem, TacoFoodItem } from '../types';
+import { Patient, Consultation, MealPlan, Meal, TacoFoodItem } from '../types';
 import { TACO_FOODS, TACO_CATEGORIES, calculateFoodItemNutrients, sumMealNutrients, createDefaultMealPlan } from '../data/tacoFoods';
 import {
   Utensils,
   Plus,
   Trash2,
   Search,
-  Printer,
   Clock,
-  CheckCircle2,
   Sparkles,
-  Info,
   RefreshCw,
   X,
   Flame,
-  Droplet,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
 } from 'lucide-react';
 
 interface MealPlannerTabProps {
   patient: Patient;
   consultation: Consultation;
   onUpdateMealPlan: (plan: MealPlan) => void;
-  onOpenPrintMealPlan: () => void;
 }
 
 export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
   patient,
   consultation,
   onUpdateMealPlan,
-  onOpenPrintMealPlan,
 }) => {
   // Inicializa com o plano da consulta ou gera um padrão baseado nas metas
   const targetKcal = consultation.calculated?.vet || 2000;
@@ -259,14 +253,6 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Modelo Sugerido</span>
-            </button>
-
-            <button
-              onClick={onOpenPrintMealPlan}
-              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all"
-            >
-              <Printer className="w-4 h-4" />
-              <span>Imprimir Cardápio (PDF)</span>
             </button>
           </div>
         </div>

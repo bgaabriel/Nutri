@@ -1,6 +1,6 @@
 import React from 'react';
 import { BmrFormula, CalculatedMetrics, EnergyPrescription } from '../types';
-import { Flame, Zap, PieChart, CheckCircle2 } from 'lucide-react';
+import { Flame, PieChart } from 'lucide-react';
 
 interface MetabolismTabProps {
   prescription: EnergyPrescription;

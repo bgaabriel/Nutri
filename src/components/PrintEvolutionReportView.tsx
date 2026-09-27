@@ -4,21 +4,15 @@ import { calculateAllMetrics } from '../calculations';
 import {
   Printer,
   ArrowLeft,
-  CheckCircle2,
   TrendingDown,
   TrendingUp,
   Scale,
   Activity,
-  Flame,
-  User,
   Calendar,
-  Share2,
   Copy,
   Check,
   FileText,
-  Award,
   Sparkles,
-  Download,
 } from 'lucide-react';
 
 interface PrintEvolutionReportViewProps {

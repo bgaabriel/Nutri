@@ -15,19 +15,11 @@ import {
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
-  Clock,
-  Plus,
   Trash2,
-  TrendingDown,
   TrendingUp,
-  Award,
   Filter,
-  CheckCircle2,
-  Flame,
   Scale,
   Activity,
-  Printer,
-  Sparkles,
 } from 'lucide-react';
 
 interface MiniChartTooltipProps {
@@ -57,9 +49,7 @@ interface ComparativeTabProps {
   currentConsultation: Consultation;
   consultationHistory: Consultation[];
   onLoadConsultation: (consultation: Consultation) => void;
-  onSaveCurrentAsNewConsultation: () => void;
   onDeleteConsultation: (id: string) => void;
-  onGenerateEvolutionPdf?: () => void;
 }
 
 export const ComparativeTab: React.FC<ComparativeTabProps> = ({
@@ -67,9 +57,7 @@ export const ComparativeTab: React.FC<ComparativeTabProps> = ({
   currentConsultation,
   consultationHistory,
   onLoadConsultation,
-  onSaveCurrentAsNewConsultation,
   onDeleteConsultation,
-  onGenerateEvolutionPdf,
 }) => {
   // All consultations including the active draft "Consulta Atual"
   const allSessions = useMemo(() => {
@@ -300,26 +288,6 @@ export const ComparativeTab: React.FC<ComparativeTabProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {onGenerateEvolutionPdf && (
-              <button
-                onClick={onGenerateEvolutionPdf}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                title="Gerar PDF consolidado com todo o histórico e evolução do paciente"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Gerar PDF da Evolução</span>
-              </button>
-            )}
-
-            <button
-              onClick={onSaveCurrentAsNewConsultation}
-              className="flex items-center gap-2 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Salvar Consulta no Histórico</span>
-            </button>
-          </div>
         </div>
 
         {/* Botões Rápidos de Período de Comparação */}
@@ -767,7 +735,7 @@ export const ComparativeTab: React.FC<ComparativeTabProps> = ({
 
         {consultationHistory.length === 0 ? (
           <p className="text-xs text-slate-500 py-6 text-center">
-            Nenhuma consulta salva anteriormente no histórico deste paciente. Clique em &quot;Salvar Consulta no Histórico&quot; para registrar esta avaliação.
+            Nenhuma consulta salva anteriormente no histórico deste paciente. Clique em &quot;Salvar Consulta&quot;, no topo do prontuário, para registrar esta avaliação.
           </p>
         ) : (
           <div className="divide-y divide-slate-100">

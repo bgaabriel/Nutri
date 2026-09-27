@@ -10,13 +10,8 @@ import {
   FileText,
   Phone,
   Mail,
-  Scale,
   Sparkles,
-  Filter,
-  CheckCircle2,
   Clock,
-  ChevronRight,
-  TrendingUp,
   Utensils,
 } from 'lucide-react';
 

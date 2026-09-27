@@ -1,6 +1,6 @@
 import React from 'react';
 import { Anthropometry, CalculatedMetrics, FatProtocol } from '../types';
-import { Ruler, Scale, HeartCrack, Activity, Layers } from 'lucide-react';
+import { Scale, HeartCrack, Layers } from 'lucide-react';
 
 interface AnthropometryTabProps {
   anthropometry: Anthropometry;
