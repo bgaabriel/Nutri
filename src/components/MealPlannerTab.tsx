@@ -1,6 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Patient, Consultation, MealPlan, Meal, TacoFoodItem, CalculatedMetrics } from '../types';
-import { TACO_FOODS, TACO_CATEGORIES, calculateFoodItemNutrients, sumMealNutrients, createDefaultMealPlan } from '../data/tacoFoods';
+import {
+  TACO_FOODS,
+  TACO_CATEGORIES,
+  calculateFoodItemNutrients,
+  sumMealNutrients,
+  createDefaultMealPlan,
+  ordenarRefeicoesPorHorario,
+} from '../data/tacoFoods';
 import {
   Utensils,
   Plus,
@@ -76,18 +83,31 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
   const targetFatG = calculatedMetrics.fatGrams;
 
   // Handlers para manipulação das refeições
-  const handleAddMeal = () => {
+  const inserirRefeicao = (nome: string, horario: string) => {
     const newMeal: Meal = {
       id: 'meal_' + Date.now(),
-      nome: 'Nova Refeição',
-      horario: '15:00',
+      nome,
+      horario,
       alimentos: [],
       observacoes: '',
     };
     onUpdateMealPlan({
       ...activePlan,
-      refeicoes: [...activePlan.refeicoes, newMeal],
+      refeicoes: ordenarRefeicoesPorHorario([...activePlan.refeicoes, newMeal]),
     });
+  };
+
+  const handleAddMeal = () => inserirRefeicao('Nova Refeição', '15:00');
+
+  const semAcento = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const temLancheDaManha = activePlan.refeicoes.some((m) => semAcento(m.nome).startsWith('lanche da manha'));
+
+  // Reordena ao sair do campo de horário (e não a cada tecla, para a linha não pular enquanto digita)
+  const handleReordenarPorHorario = () => {
+    const ordenadas = ordenarRefeicoesPorHorario(activePlan.refeicoes);
+    if (ordenadas.some((m, i) => m.id !== activePlan.refeicoes[i].id)) {
+      onUpdateMealPlan({ ...activePlan, refeicoes: ordenadas });
+    }
   };
 
   const handleRemoveMeal = (mealId: string) => {
@@ -481,13 +501,24 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
             Refeições do Dia ({activePlan.refeicoes.length})
           </h3>
 
-          <button
-            onClick={handleAddMeal}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition-all"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Adicionar Nova Refeição</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {!temLancheDaManha && (
+              <button
+                onClick={() => inserirRefeicao('Lanche da Manhã', '10:00')}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Lanche da Manhã</span>
+              </button>
+            )}
+            <button
+              onClick={handleAddMeal}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Adicionar Nova Refeição</span>
+            </button>
+          </div>
         </div>
 
         {activePlan.refeicoes.map((meal, index) => {
@@ -525,6 +556,7 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
                       onChange={(e) =>
                         handleUpdateMealHeader(meal.id, 'horario', e.target.value)
                       }
+                      onBlur={handleReordenarPorHorario}
                       className="w-12 bg-transparent text-center outline-none font-bold"
                       placeholder="08:00"
                     />

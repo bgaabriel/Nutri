@@ -1363,6 +1363,17 @@ export function sumMealNutrients(items: MealFoodItem[]) {
   );
 }
 
+/** Minutos desde 00:00 de um horário 'HH:MM' (ou 'H:MM'); horário inválido vai para o fim. */
+function minutosDoHorario(horario: string): number {
+  const m = /^(\d{1,2}):(\d{2})/.exec((horario || '').trim());
+  return m ? Number(m[1]) * 60 + Number(m[2]) : 24 * 60;
+}
+
+/** Refeições em ordem de horário (ordenação estável: empates mantêm a ordem atual). */
+export function ordenarRefeicoesPorHorario<T extends { horario: string }>(refeicoes: T[]): T[] {
+  return [...refeicoes].sort((a, b) => minutosDoHorario(a.horario) - minutosDoHorario(b.horario));
+}
+
 /**
  * Gera um cardápio modelo inicial equilibrado com base no objetivo
  */
@@ -1377,6 +1388,9 @@ export function createDefaultMealPlan(
   const m2 = getFood('taco-52'); // pao integral
   const m3 = getFood('taco-27'); // banana prata
   const m4 = getFood('taco-07'); // aveia
+
+  const lm1 = getFood('taco-29'); // maçã
+  const lm2 = getFood('taco-57'); // castanha-de-caju
 
   const al1 = getFood('taco-01'); // arroz
   const al2 = getFood('taco-03'); // feijao
@@ -1407,6 +1421,16 @@ export function createDefaultMealPlan(
         m1 ? calculateFoodItemNutrients(m1, 100, 'Ou 100g de queijo cottage') : null,
         m3 ? calculateFoodItemNutrients(m3, 80, 'Ou 1 maçã fuji média') : null,
         m4 ? calculateFoodItemNutrients(m4, 20, 'Ou 1 colher de sopa de chia') : null,
+      ].filter(Boolean) as MealFoodItem[],
+    },
+    {
+      id: 'meal-lanche-manha',
+      nome: 'Lanche da Manhã',
+      horario: '10:00',
+      observacoes: 'Lanche leve para chegar ao almoço sem fome excessiva.',
+      alimentos: [
+        lm1 ? calculateFoodItemNutrients(lm1, 130, 'Ou 1 pera média ou 2 fatias de mamão') : null,
+        lm2 ? calculateFoodItemNutrients(lm2, 15, 'Ou 3 castanhas-do-pará ou 10 amêndoas') : null,
       ].filter(Boolean) as MealFoodItem[],
     },
     {

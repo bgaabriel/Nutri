@@ -1,6 +1,6 @@
 import React from 'react';
 import { Patient, Consultation, ProfessionalProfile, MealPlan, CalculatedMetrics } from '../types';
-import { sumMealNutrients, createDefaultMealPlan } from '../data/tacoFoods';
+import { sumMealNutrients, createDefaultMealPlan, ordenarRefeicoesPorHorario } from '../data/tacoFoods';
 import { ArrowLeft, Droplet, Flame } from 'lucide-react';
 
 interface PrintMealPlanViewProps {
@@ -149,7 +149,7 @@ export const PrintMealPlanView: React.FC<PrintMealPlanViewProps> = ({
             </span>
           </h2>
 
-          {plan.refeicoes.map((meal, idx) => {
+          {ordenarRefeicoesPorHorario(plan.refeicoes).map((meal, idx) => {
             const mTotals = sumMealNutrients(meal.alimentos);
 
             return (
