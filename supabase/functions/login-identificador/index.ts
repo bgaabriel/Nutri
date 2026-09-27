@@ -14,17 +14,26 @@
 // ------------------------------------------------------------------
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // em produção, troque pelo domínio do app
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+// CORS: em produção, defina o segredo APP_ORIGINS com o(s) domínio(s) do app, separados por
+// vírgula (ex.: "https://app.nutripro.com.br,http://localhost:3000"). Sem ele, aceita qualquer
+// origem (útil só em desenvolvimento).
+const origensPermitidas = (Deno.env.get('APP_ORIGINS') ?? '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
 
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
+/** Cabeçalhos CORS de cada requisição (calculados por requisição, sem estado compartilhado). */
+function corsPara(req: Request): Record<string, string> {
+  const origem = req.headers.get('origin') ?? '';
+  const permitida =
+    origensPermitidas.length === 0 ? '*' : origensPermitidas.includes(origem) ? origem : origensPermitidas[0];
+  return {
+    'Access-Control-Allow-Origin': permitida,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    Vary: 'Origin',
+  };
+}
 
 // Mensagem única para qualquer falha: não revela se o CPF/CRN existe.
 const FALHA = { error: 'Credenciais inválidas. Confira os dados e a senha.' };
@@ -40,6 +49,13 @@ type Corpo = {
 };
 
 Deno.serve(async (req) => {
+  const corsHeaders = corsPara(req);
+  const json = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return json({ error: 'Método não permitido' }, 405);
 
