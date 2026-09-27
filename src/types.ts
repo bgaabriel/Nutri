@@ -110,6 +110,12 @@ export interface TacoFoodItem {
   magnesio100g: number; // mg
   vitc100g: number; // mg
   fosforo100g?: number; // mg
+  zinco100g?: number; // mg
+  colesterol100g?: number; // mg
+  umidade100g?: number | null; // g
+  tacoNumero?: number | null; // nº do alimento na TACO; null nos complementares
+  fonte?: string;
+  dadosIncompletos?: boolean; // a TACO não traz todos os valores deste alimento
 }
 
 export interface MealFoodItem {

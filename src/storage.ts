@@ -1,5 +1,6 @@
 import { Appointment, Consultation, Patient, ProfessionalProfile } from './types';
 import { dataLocalISO } from './utils/date';
+import { migrarConsulta } from './data/tacoFoods';
 
 const PATIENTS_STORAGE_KEY = 'nutripro_patients_v1';
 const CONSULTATIONS_STORAGE_KEY = 'nutripro_consultations_v1';
@@ -279,7 +280,8 @@ export function loadConsultations(): Consultation[] {
     const saved = localStorage.getItem(CONSULTATIONS_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      // Cardápios antigos apontam para ids da base de 66 alimentos: converte pelo mapa
+      if (Array.isArray(parsed) && parsed.length > 0) return (parsed as Consultation[]).map(migrarConsulta);
     }
   } catch (e) {
     console.warn('Erro ao carregar consultas do localStorage', e);

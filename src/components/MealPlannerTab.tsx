@@ -7,6 +7,9 @@ import {
   sumMealNutrients,
   createDefaultMealPlan,
   ordenarRefeicoesPorHorario,
+  buscarAlimentos,
+  LIMITE_RESULTADOS_BUSCA,
+  migrarTacoId,
 } from '../data/tacoFoods';
 import {
   Utensils,
@@ -59,17 +62,12 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
   // Expandir / recolher seções de micronutrientes
   const [showMicros, setShowMicros] = useState<boolean>(true);
 
-  // Alimentos filtrados da TACO
-  const filteredFoods = useMemo(() => {
-    return TACO_FOODS.filter((f) => {
-      const matchesCategory =
-        selectedCategory === 'Todos' || f.grupo === selectedCategory;
-      const matchesSearch =
-        f.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        f.grupo.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [searchQuery, selectedCategory]);
+  // Busca na base de alimentos (sem acentos, termos em qualquer ordem, até 50 por vez)
+  const resultadoBusca = useMemo(
+    () => buscarAlimentos(TACO_FOODS, searchQuery, selectedCategory),
+    [searchQuery, selectedCategory]
+  );
+  const filteredFoods = resultadoBusca.itens;
 
   // Totais de todas as refeições do plano
   const dailyTotals = useMemo(() => {
@@ -204,7 +202,7 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
     tacoId: string,
     newGrams: number
   ) => {
-    const tacoFood = TACO_FOODS.find((f) => f.id === tacoId);
+    const tacoFood = TACO_FOODS.find((f) => f.id === migrarTacoId(tacoId));
     if (!tacoFood) return;
 
     const grams = Math.max(0, newGrams || 0);
@@ -756,7 +754,7 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
                   Alimentos da Tabela TACO
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Selecione o alimento e defina a porção em gramas
+                  {TACO_FOODS.length} alimentos • Selecione o alimento e defina a porção em gramas
                 </p>
               </div>
               <button
@@ -799,6 +797,14 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
               </div>
             </div>
 
+            <div className="px-4 py-1.5 border-b border-slate-100 text-[11px] text-slate-500 bg-white">
+              {resultadoBusca.total === 0
+                ? 'Nenhum alimento encontrado'
+                : resultadoBusca.total > LIMITE_RESULTADOS_BUSCA
+                ? `Mostrando ${LIMITE_RESULTADOS_BUSCA} de ${resultadoBusca.total} alimentos encontrados. Refine a busca para ver outros.`
+                : `${resultadoBusca.total} ${resultadoBusca.total === 1 ? 'alimento encontrado' : 'alimentos encontrados'}`}
+            </div>
+
             {/* Lista de Alimentos */}
             <div className="overflow-y-auto flex-1 p-3 divide-y divide-slate-100 max-h-[340px]">
               {filteredFoods.length === 0 ? (
@@ -822,12 +828,24 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
                         <span className="font-semibold text-slate-900 text-sm block">
                           {food.nome}
                         </span>
-                        <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
+                        <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-slate-500">
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                              food.tacoNumero ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'
+                            }`}
+                          >
+                            {food.tacoNumero ? `TACO nº ${food.tacoNumero}` : 'Complementar'}
+                          </span>
                           <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px] font-medium">
                             {food.grupo}
                           </span>
                           <span>Porção ref: {food.porcaoPadraoG}g ({food.medidaCaseira})</span>
                         </div>
+                        {food.dadosIncompletos && (
+                          <span className="block mt-1 text-[10px] font-semibold text-amber-700">
+                            ⚠ A TACO não traz todos os valores deste alimento; alguns nutrientes aparecem como 0.
+                          </span>
+                        )}
                       </div>
 
                       <div className="text-right shrink-0">
@@ -852,9 +870,18 @@ export const MealPlannerTab: React.FC<MealPlannerTabProps> = ({
                     <span className="text-xs font-bold text-emerald-900 block">
                       Alimento Selecionado: {selectedFood.nome}
                     </span>
-                    <span className="text-xs text-slate-600">
+                    <span className="text-xs text-slate-600 block">
                       Medida sugerida: {selectedFood.medidaCaseira}
                     </span>
+                    <span className="text-[11px] text-slate-500 block">
+                      Fonte: {selectedFood.tacoNumero ? `TACO nº ${selectedFood.tacoNumero}` : 'Complementar'}
+                      {selectedFood.fonte ? ` — ${selectedFood.fonte}` : ''}
+                    </span>
+                    {selectedFood.dadosIncompletos && (
+                      <span className="text-[11px] font-semibold text-amber-700 block">
+                        ⚠ Dados incompletos na TACO para este alimento.
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-2">
