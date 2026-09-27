@@ -32,7 +32,7 @@ import { OverviewDashboard } from './components/OverviewDashboard';
 import { PatientsDirectoryView } from './components/PatientsDirectoryView';
 import { PatientRecordView, ClinicalStage } from './components/PatientRecordView';
 import { AppointmentModal } from './components/AppointmentModal';
-import { PatientsModal } from './components/PatientsModal';
+import { PatientsModal, PatientsModalMode } from './components/PatientsModal';
 import { ProfileModal } from './components/ProfileModal';
 import {
   Users,
@@ -71,7 +71,7 @@ export default function App() {
   const [clinicalStage, setClinicalStage] = useState<ClinicalStage>('antropometria');
 
   // Modals state
-  const [isPatientsModalOpen, setIsPatientsModalOpen] = useState(false);
+  const [patientsModalMode, setPatientsModalMode] = useState<PatientsModalMode | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
@@ -564,7 +564,7 @@ export default function App() {
                     Ver Todos
                   </button>
                   <button
-                    onClick={() => setIsPatientsModalOpen(true)}
+                    onClick={() => setPatientsModalMode('selecionar')}
                     className="flex-1 text-[11px] py-1 text-emerald-800 hover:text-emerald-900 bg-emerald-100/70 border border-emerald-200 rounded-lg font-bold text-center transition-colors"
                   >
                     Trocar
@@ -649,7 +649,7 @@ export default function App() {
             {activeMainTab === 'prontuario' && (
               <>
                 <button
-                  onClick={() => setIsPatientsModalOpen(true)}
+                  onClick={() => setPatientsModalMode('selecionar')}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors cursor-pointer"
                 >
                   <Users className="w-3.5 h-3.5 text-emerald-600" />
@@ -742,7 +742,7 @@ export default function App() {
                 handleSelectPatient(patientId, initialTab || 'antropometria');
                 setActiveMainTab('prontuario');
               }}
-              onOpenNewPatientModal={() => setIsPatientsModalOpen(true)}
+              onOpenNewPatientModal={() => setPatientsModalMode('cadastrar')}
               onOpenScheduleAppointment={(patientId) => handleOpenNewAppointment(undefined, patientId)}
             />
           )}
@@ -758,7 +758,7 @@ export default function App() {
               activeStage={clinicalStage}
               onChangeStage={(stage) => setClinicalStage(stage)}
               onBackToPatients={() => setActiveMainTab('pacientes')}
-              onOpenSwitchPatientModal={() => setIsPatientsModalOpen(true)}
+              onOpenSwitchPatientModal={() => setPatientsModalMode('selecionar')}
               onSaveConsultation={handleSaveConsultation}
               onUpdatePatient={handleUpdatePatient}
               onUpdateAnamnesis={handleUpdateAnamnesis}
@@ -783,17 +783,19 @@ export default function App() {
         onDelete={handleDeleteAppointment}
       />
 
-      <PatientsModal
-        isOpen={isPatientsModalOpen}
-        onClose={() => setIsPatientsModalOpen(false)}
-        patients={patients}
-        activePatientId={activePatientId}
-        onSelectPatient={(pId) => {
-          handleSelectPatient(pId, 'antropometria');
-          setActiveMainTab('prontuario');
-        }}
-        onAddPatient={handleAddPatient}
-      />
+      {patientsModalMode && (
+        <PatientsModal
+          modo={patientsModalMode}
+          onClose={() => setPatientsModalMode(null)}
+          patients={patients}
+          activePatientId={activePatientId}
+          onSelectPatient={(pId) => {
+            handleSelectPatient(pId, 'antropometria');
+            setActiveMainTab('prontuario');
+          }}
+          onAddPatient={handleAddPatient}
+        />
+      )}
 
       <ProfileModal
         isOpen={isProfileModalOpen}

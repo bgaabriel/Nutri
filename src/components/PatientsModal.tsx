@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Patient, Sex } from '../types';
-import { User, X, Plus, Search, Check } from 'lucide-react';
+import { User, X, Search, Check } from 'lucide-react';
+
+export type PatientsModalMode = 'cadastrar' | 'selecionar';
 
 interface PatientsModalProps {
-  isOpen: boolean;
+  /** 'cadastrar' abre direto no formulário; 'selecionar' mostra só a lista com busca. */
+  modo: PatientsModalMode;
   onClose: () => void;
   patients: Patient[];
   activePatientId: string;
@@ -12,7 +15,7 @@ interface PatientsModalProps {
 }
 
 export const PatientsModal: React.FC<PatientsModalProps> = ({
-  isOpen,
+  modo,
   onClose,
   patients,
   activePatientId,
@@ -20,15 +23,13 @@ export const PatientsModal: React.FC<PatientsModalProps> = ({
   onAddPatient,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isCreating, setIsCreating] = useState(false);
+  const isCreating = modo === 'cadastrar';
   const [name, setName] = useState('');
   const [age, setAge] = useState(30);
   const [sex, setSex] = useState<Sex>('M');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [objective, setObjective] = useState('Emagrecimento & Saúde');
-
-  if (!isOpen) return null;
 
   const filteredPatients = patients.filter(
     (p) =>
@@ -52,12 +53,9 @@ export const PatientsModal: React.FC<PatientsModalProps> = ({
       createdAt: new Date().toISOString().split('T')[0],
     };
 
+    // onAddPatient já seleciona o paciente novo e abre o prontuário na Anamnese.
     onAddPatient(newPatient);
-    setIsCreating(false);
-    setName('');
-    setPhone('');
-    setEmail('');
-    onSelectPatient(newPatient.id);
+    onClose();
   };
 
   return (
@@ -70,7 +68,7 @@ export const PatientsModal: React.FC<PatientsModalProps> = ({
               <User className="w-4 h-4" />
             </div>
             <h3 className="text-base font-bold text-slate-900">
-              {isCreating ? 'Cadastrar Novo Paciente' : 'Gerenciar Pacientes'}
+              {isCreating ? 'Cadastrar Novo Paciente' : 'Trocar Paciente'}
             </h3>
           </div>
           <button
@@ -92,6 +90,7 @@ export const PatientsModal: React.FC<PatientsModalProps> = ({
                 <input
                   type="text"
                   required
+                  autoFocus
                   placeholder="Nome do paciente"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -165,10 +164,10 @@ export const PatientsModal: React.FC<PatientsModalProps> = ({
               <div className="flex gap-2 justify-end pt-3 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setIsCreating(false)}
+                  onClick={onClose}
                   className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
                 >
-                  Voltar à Lista
+                  Cancelar
                 </button>
                 <button
                   type="submit"
@@ -180,7 +179,7 @@ export const PatientsModal: React.FC<PatientsModalProps> = ({
             </form>
           ) : (
             <div className="space-y-4">
-              {/* Search + New Patient Button */}
+              {/* Search */}
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
@@ -192,13 +191,6 @@ export const PatientsModal: React.FC<PatientsModalProps> = ({
                     className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 text-xs focus:bg-white focus:border-emerald-600 outline-none"
                   />
                 </div>
-                <button
-                  onClick={() => setIsCreating(true)}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Novo</span>
-                </button>
               </div>
 
               {/* Patient List */}
