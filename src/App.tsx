@@ -47,7 +47,6 @@ import {
   Plus,
   Save,
   CheckCircle2,
-  Database,
   ArrowRight,
   ArrowLeft,
   Sparkles,
@@ -436,7 +435,7 @@ export default function App() {
           setConsultations(loadConsultations());
           setAppointments(loadAppointments());
           setProfile(loadProfile());
-          showToast('Backup offline restaurado com sucesso!');
+          showToast('Backup restaurado com sucesso!');
         } else {
           showToast('Erro ao importar arquivo de backup.');
         }
@@ -576,42 +575,8 @@ export default function App() {
           )}
         </div>
 
-        {/* Sidebar Footer: Offline Status & Professional Profile */}
+        {/* Sidebar Footer: Professional Profile */}
         <div className="p-4 border-t border-slate-100 space-y-3">
-          {/* Offline Mode Indicator Badge */}
-          <div className="p-3 rounded-xl border border-emerald-200 bg-emerald-50/70">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] uppercase tracking-wider text-emerald-900 font-extrabold flex items-center gap-1.5">
-                <Database className="w-3 h-3 text-emerald-700" />
-                <span>Offline 100% Ativo</span>
-              </span>
-              <div className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-            </div>
-            <p className="text-[11px] text-emerald-950 font-medium">
-              Dados sigilosos e seguros no seu dispositivo.
-            </p>
-
-            {/* Backup actions */}
-            <div className="flex gap-2 mt-2 pt-2 border-t border-emerald-200/60">
-              <button
-                onClick={handleExportBackup}
-                title="Exportar cópia de segurança em JSON"
-                className="flex-1 flex items-center justify-center gap-1 text-[11px] py-1 bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-lg font-bold transition-colors shadow-2xs cursor-pointer"
-              >
-                <Download className="w-3 h-3" />
-                <span>Backup</span>
-              </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                title="Restaurar backup JSON"
-                className="flex-1 flex items-center justify-center gap-1 text-[11px] py-1 bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-lg font-bold transition-colors shadow-2xs cursor-pointer"
-              >
-                <Upload className="w-3 h-3" />
-                <span>Restaurar</span>
-              </button>
-            </div>
-          </div>
-
           {/* Professional profile badge */}
           <div
             onClick={() => setIsProfileModalOpen(true)}
@@ -864,6 +829,8 @@ export default function App() {
         onClose={() => setIsProfileModalOpen(false)}
         profile={profile}
         onSave={handleSaveProfile}
+        onExportBackup={handleExportBackup}
+        onImportBackup={() => fileInputRef.current?.click()}
       />
     </div>
   );

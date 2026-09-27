@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { ProfessionalProfile } from '../types';
-import { Award, X } from 'lucide-react';
+import { Award, Download, Upload, X } from 'lucide-react';
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   profile: ProfessionalProfile;
   onSave: (profile: ProfessionalProfile) => void;
+  onExportBackup: () => void;
+  onImportBackup: () => void;
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({
@@ -14,6 +16,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   onClose,
   profile,
   onSave,
+  onExportBackup,
+  onImportBackup,
 }) => {
   const [formData, setFormData] = useState<ProfessionalProfile>({ ...profile });
 
@@ -116,6 +120,33 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               placeholder="Ex: Av. Paulista, 1000, Sala 402 - São Paulo / SP"
               className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 text-sm focus:bg-white focus:border-emerald-600 outline-none"
             />
+          </div>
+
+          {/* Backup */}
+          <div className="pt-3 border-t border-slate-100">
+            <h4 className="text-xs font-bold text-slate-800 mb-1">Backup</h4>
+            <p className="text-[11px] text-slate-500 mb-2">
+              Exporte uma cópia dos seus pacientes, consultas e agendamentos em JSON ou restaure a
+              partir de um arquivo exportado antes.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onExportBackup}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Exportar backup (JSON)</span>
+              </button>
+              <button
+                type="button"
+                onClick={onImportBackup}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold bg-white hover:bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl transition-colors cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Restaurar backup</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex gap-2 justify-end pt-3 border-t border-slate-100">

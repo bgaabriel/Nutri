@@ -454,9 +454,8 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
             <span className="text-2xl font-black text-slate-900 mt-1 block">
               {consultations.length}
             </span>
-            <span className="text-[11px] text-purple-600 font-semibold flex items-center gap-1 mt-0.5">
-              <CheckCircle2 className="w-3 h-3" />
-              100% Salvos Offline
+            <span className="text-[11px] text-slate-500 font-medium mt-0.5 block">
+              Consultas no histórico
             </span>
           </div>
           <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 text-purple-700 flex items-center justify-center">
