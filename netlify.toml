@@ -1,0 +1,19 @@
+# Configuração do Netlify: compila o app e serve como site de página única.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Projeto Supabase nutripro-clinico. É a chave PÚBLICA (anon): ela já vai dentro do
+  # JavaScript do site e o acesso aos dados é protegido pelas políticas RLS.
+  # NUNCA coloque a service_role key aqui.
+  VITE_SUPABASE_URL = "https://fdqflqazohspcxbredus.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkcWZscWF6b2hzcGN4YnJlZHVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTMwNjksImV4cCI6MjEwNjA4OTA2OX0.tKzvNEDsSmqEOtGdX2swXnzTR0bnXXY45GqullmF6kE"
+
+# Qualquer endereço (ex.: /redefinir-senha) abre o app.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
